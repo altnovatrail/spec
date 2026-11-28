@@ -494,8 +494,8 @@ export const ModeSchema = /*@__PURE__*/
   enumDesc(file_novatrail_api_v1_account, 3);
 
 /**
- * A mode of the screen of a task. A mode its build does not know `app` reads as "by
- * steps".
+ * No longer used: a mode of a screen of a task, which no screen has. `api` gives
+ * `MODE_UNSPECIFIED` alone, and `app` sends none and reads none.
  *
  * @generated from enum novatrail.api.v1.Mode
  */

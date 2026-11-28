@@ -203,16 +203,16 @@ func (VoicingSpeed) EnumDescriptor() ([]byte, []int) {
 	return file_novatrail_api_v1_account_proto_rawDescGZIP(), []int{2}
 }
 
-// A mode of the screen of a task. A mode its build does not know `app` reads as "by
-// steps".
+// No longer used: a mode of a screen of a task, which no screen has. `api` gives
+// `MODE_UNSPECIFIED` alone, and `app` sends none and reads none.
 type Mode int32
 
 const (
-	// Not named: in a request, the mode stays as it is, and a new profile's is "by steps".
+	// Not named: the one value `api` gives.
 	Mode_MODE_UNSPECIFIED Mode = 0
-	// "By steps": the app leads through the module's solving steps.
+	// Not given: "by steps", a mode that led through the module's solving steps.
 	Mode_MODE_BY_STEPS Mode = 1
-	// "Self": the app waits until the learner calls.
+	// Not given: "self", a mode that waited until the learner called.
 	Mode_MODE_SELF Mode = 2
 )
 
@@ -780,8 +780,8 @@ type Profile struct {
 	Country string `protobuf:"bytes,6,opt,name=country,proto3" json:"country,omitempty"`
 	// How the platform speaks and shows: what of it changes the words goes to AI, and nothing else.
 	PresentationStyle *PresentationStyle `protobuf:"bytes,7,opt,name=presentation_style,json=presentationStyle,proto3" json:"presentation_style,omitempty"`
-	// The default mode, which the learner switches on the screen of a task until the end of the
-	// attempt. It goes to no AI.
+	// No longer used: no screen of a task has a mode. `api` gives `MODE_UNSPECIFIED`, and `app`
+	// reads none.
 	DefaultMode Mode `protobuf:"varint,8,opt,name=default_mode,json=defaultMode,proto3,enum=novatrail.api.v1.Mode" json:"default_mode,omitempty"`
 	// The language of the interface, a tag of BCP 47: absent when none is set, and then `app` speaks
 	// the language of the device. On a task from paper the tutor's words are in it when a request
@@ -789,8 +789,7 @@ type Profile struct {
 	InterfaceLanguage *string `protobuf:"bytes,9,opt,name=interface_language,json=interfaceLanguage,proto3,oneof" json:"interface_language,omitempty"`
 	// The grade, from 1 to 12, as a module with grades asks for it: absent when none is given.
 	Grade *int32 `protobuf:"varint,10,opt,name=grade,proto3,oneof" json:"grade,omitempty"`
-	// A child's setting, which an adult sets: the solution is shown by an action of an adult.
-	// Always false on a profile of the category `adult`.
+	// No longer used: no solution is shown on any task. `api` gives false, and `app` reads none.
 	AskBeforeShowing bool `protobuf:"varint,11,opt,name=ask_before_showing,json=askBeforeShowing,proto3" json:"ask_before_showing,omitempty"`
 	// The profile's open attempt of a task of a module: absent when it has none. A profile has one
 	// at most; the open attempts of tasks from paper are not named here, since only the device that
@@ -1132,11 +1131,10 @@ func (x *Voicing) GetSpeed() VoicingSpeed {
 }
 
 // The settings of a profile that an adult sets, when a profile is created or changed. A field sent
-// is set; a field left out stays as it is, and on a new profile takes its default: the mode "by
-// steps", the hint mode "Show where", the voicing on at the category `under_13` and off at the
-// others, at normal speed, and on a child's profile "ask before showing" on. `app` sends only what
-// changed, so it never writes back a value its build does not know. A field whose form the contract
-// refuses gets the code `invalid_argument`.
+// is set; a field left out stays as it is, and on a new profile takes its default: the hint mode
+// "Show where", and the voicing on at the category `under_13` and off at the others, at normal
+// speed. `app` sends only what changed, so it never writes back a value its build does not know.
+// A field whose form the contract refuses gets the code `invalid_argument`.
 type ProfileSettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pseudonym: from 1 to 30 Unicode code points once the spaces at its ends are trimmed.
@@ -1146,7 +1144,8 @@ type ProfileSettings struct {
 	Avatar *string `protobuf:"bytes,2,opt,name=avatar,proto3,oneof" json:"avatar,omitempty"`
 	// The voicing.
 	Voicing *Voicing `protobuf:"bytes,3,opt,name=voicing,proto3" json:"voicing,omitempty"`
-	// The default mode: `MODE_UNSPECIFIED` leaves it as it is.
+	// No longer used: `app` sends none, and `api` keeps none and reads a mode sent as
+	// `MODE_UNSPECIFIED`.
 	DefaultMode Mode `protobuf:"varint,4,opt,name=default_mode,json=defaultMode,proto3,enum=novatrail.api.v1.Mode" json:"default_mode,omitempty"`
 	// The language of the interface, a well-formed tag of BCP 47, which `api` keeps with no list of
 	// its own; empty clears it. On a new profile `app` sends the language of the section for
@@ -1154,8 +1153,8 @@ type ProfileSettings struct {
 	InterfaceLanguage *string `protobuf:"bytes,5,opt,name=interface_language,json=interfaceLanguage,proto3,oneof" json:"interface_language,omitempty"`
 	// The grade, from 1 to 12; 0 clears it.
 	Grade *int32 `protobuf:"varint,6,opt,name=grade,proto3,oneof" json:"grade,omitempty"`
-	// "Ask before showing" the solution: a child's alone, and on a profile of the category `adult`
-	// the request is refused `invalid_argument`.
+	// No longer used: no solution is shown on any task. `app` sends none, and `api` keeps none and
+	// ignores it.
 	AskBeforeShowing *bool `protobuf:"varint,7,opt,name=ask_before_showing,json=askBeforeShowing,proto3,oneof" json:"ask_before_showing,omitempty"`
 	// The hint mode: `HINT_MODE_UNSPECIFIED` leaves it as it is.
 	HintMode      HintMode `protobuf:"varint,8,opt,name=hint_mode,json=hintMode,proto3,enum=novatrail.api.v1.HintMode" json:"hint_mode,omitempty"`

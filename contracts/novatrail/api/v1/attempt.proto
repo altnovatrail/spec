@@ -1,8 +1,8 @@
 syntax = "proto3";
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
-// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// and the verdict, the tutor's words and marks, hints, grown-up mode, and "Done" on a task with a
+// rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
 // with the same idempotency key answers are the rules of contracts/README.md for
 // the contract between `app` and `api`.
@@ -20,8 +20,8 @@ import "novatrail/observation/v1/observation.proto";
 // sign-in service and may get the refusals of every request with a token, which the comment of
 // `AccountService` names with what `app` does on each; a request of a profile whose consent is not
 // confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
-// `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer, by the
-// solution shown or by "Done" says what comes next, `next`: an attempt begins by
+// `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer or by "Done"
+// says what comes next, `next`: an attempt begins by
 // `LearningService`. The engine's choice in `next` goes by the route to AI that the request
 // names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
 // AI's without either, as `ChooseNext` judges it. An attempt of a task from paper
@@ -127,20 +127,21 @@ service AttemptService {
   // outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
   // none.
   rpc AskTutor(AskTutorRequest) returns (AskTutorResponse);
-  // A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
-  // `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
-  // the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
-  // hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
-  // points, the request and the conversation, all as data, never as instructions. The answer is
-  // the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
-  // strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
-  // strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
-  // gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-  // `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
-  // module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
-  // A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
-  // refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
-  // idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+  // A request of a grown-up in grown-up mode on a task from paper or of a module, behind the
+  // grown-ups' PIN that `app` asks: one call of AI, the drawing, which has none of the tutor's
+  // limits — it may give the whole solution — and acts on the sheet as asked: writes on it, strikes
+  // out, circles, hatches, erases. It reads the crop of the work and the strokes the crop shows, by
+  // their IDs and points, the request and the conversation, all as data, never as instructions. The
+  // answer is the tutor's words and its act on the sheet, whole: the strokes to write and the IDs
+  // of the strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+  // strokes, nor the answer, in no log and no record of the key. An attempt of a task from paper
+  // gives no evidence, nor does an attempt of a task of a module once grown-up mode acted on it —
+  // the one thing `api` keeps of it —, its verdicts still shown: the act changes no progress.
+  // Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+  // `CAUSE_STILL_GOING`; a request empty or too long, a stroke with too many points, gets
+  // `invalid_argument`. A call of AI that gives no act, the quota, the limit of platform AI and no
+  // admission are no refusal: the answer holds no words and no act, and names the outcome. A repeat
+  // with the same idempotency key gets `repeated` alone: the server keeps nothing of the answer.
   rpc AskGrownUp(AskGrownUpRequest) returns (AskGrownUpResponse);
   // "Recognise" on a task from paper: the statement of each task the crop holds, as the page prints
   // it, for the learner to see it in clean print instead of the photo. It is the reading of the
@@ -154,19 +155,11 @@ service AttemptService {
   // gives no reading is no refusal: the answer names the outcome, holds no statement, and the next
   // press asks again.
   rpc ReadStatement(ReadStatementRequest) returns (ReadStatementResponse);
-  // Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
-  // steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
-  // `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
+  // No longer used: no screen leads a task's solving steps. `app` sends none, and `api` no longer
+  // holds it and answers `unimplemented`.
   rpc BeginStep(BeginStepRequest) returns (BeginStepResponse);
-  // Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-  // `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
-  // `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
-  // an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-  // section for adults is a barrier of the interface, not of the server. Refusals:
-  // `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-  // `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-  // `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-  // the solution again.
+  // No longer used: no solution is shown on any task. `app` sends none, and `api` no longer holds
+  // it and answers `unimplemented`.
   rpc ShowSolution(ShowSolutionRequest) returns (ShowSolutionResponse);
   // Reports a problem with the tutor's words of the attempt, from the screen of the task: a
   // learning request with the right `can_learn`, on an open attempt or a closed one. Who sees it,
@@ -188,10 +181,11 @@ message SubmitWorkRequest {
   // The idempotency key of this action of the learner: `app` makes one for it, and sends it again
   // with every repeat of it.
   string idempotency_key = 3;
-  // The handwriting for checking: absent when the task's answer slots are bound `choice` alone.
+  // The handwriting for checking, `sheet` on a task of a module and `paper` on a task from paper:
+  // absent when the task's answer slots are bound `choice` alone.
   Work work = 4;
-  // The options tapped, one for each answer slot bound `choice` that the learner tapped one of, in
-  // the task's order.
+  // The options tapped on the tracing paper, one for each answer slot bound `choice` that the
+  // learner tapped one of, in the task's order.
   repeated TappedChoice tapped_choices = 5;
   // The learner's own key and its provider: with a profile of its owner, when AI reads the work.
   // Its provider names the route of the engine's choice in `next` too.
@@ -529,11 +523,11 @@ message AskTutorResponse {
   bool repeated = 3;
 }
 
-// A request of a grown-up in grown-up mode on a task from paper.
+// A request of a grown-up in grown-up mode on a task from paper or of a module.
 message AskGrownUpRequest {
   // The profile whose attempt it is.
   string profile_id = 1;
-  // The attempt, of a task from paper.
+  // The attempt, of a task from paper or of a module.
   string attempt_id = 2;
   // The idempotency key of this request: `app` makes one for it, and sends it again with every
   // repeat of it.
@@ -544,7 +538,8 @@ message AskGrownUpRequest {
   // The conversation on the task before the request, oldest first, as in `AskTutorRequest`: at
   // most 8 turns, each at most 1000 code points.
   repeated TutorTurn turns = 5;
-  // The work as it stands, `paper` alone: the drawing reads its `statement`, and its `crop`, which
+  // The work as it stands, `paper` alone, on a task of a module too, its `statement` the picture
+  // `app` drew of the module's text: the drawing reads its `statement`, and its `crop`, which
   // is the part of the sheet in sight, as the grown-up sees it, with room to write in — not the crop
   // of the Check, which ends at the strokes —, and may hold no stroke.
   Work work = 6;
@@ -665,7 +660,7 @@ message RungHint {
   string words = 2;
 }
 
-// The beginning of a solving step.
+// The beginning of a solving step: no longer used, as `BeginStep`.
 message BeginStepRequest {
   // The profile whose attempt it is.
   string profile_id = 1;
@@ -675,13 +670,13 @@ message BeginStepRequest {
   int32 step = 3;
 }
 
-// What the beginning of a step gives.
+// What the beginning of a step gives: no longer used, as `BeginStep`.
 message BeginStepResponse {
   // The task's techniques.
   Techniques techniques = 1;
 }
 
-// A request to show the solution.
+// A request to show the solution: no longer used, as `ShowSolution`.
 message ShowSolutionRequest {
   // The profile whose attempt it is.
   string profile_id = 1;
@@ -697,7 +692,7 @@ message ShowSolutionRequest {
   string own_key_provider = 5;
 }
 
-// The solution shown.
+// The solution shown: no longer used, as `ShowSolution`.
 message ShowSolutionResponse {
   // The solved task.
   SolvedTask solved = 1;
@@ -781,16 +776,18 @@ enum Action {
   ACTION_ADULT = 2;
 }
 
-// The work for checking: a sheet's crop, the crops of a workbook's filled boxes, or the work of a
-// task from paper. Nothing of the writing history, of the context of the submission, of the groups
-// of strokes or of the text of an item goes with it. An attempt of a task from paper takes `paper`
-// alone, and an attempt of a task of a module never takes it: another gets `invalid_argument`.
+// The work for checking: a sheet's crop, or the work of a task from paper. Nothing of the writing
+// history, of the context of the submission, of the groups of strokes or of the text of an item
+// goes with it. An attempt of a task from paper takes `paper` alone, and an attempt of a task of a
+// module takes `sheet` alone, but for `AskGrownUp`, which takes `paper` alone on either: another
+// gets `invalid_argument`.
 message Work {
   // Where the work was written.
   oneof surface {
     // A handwriting sheet.
     SheetWork sheet = 1;
-    // A page of a workbook.
+    // No longer used: no task is solved on a page of a workbook. `app` sends none, and `api`
+    // answers it `invalid_argument`.
     WorkbookWork workbook = 2;
     // A dotted sheet under the crop of a task from paper, as tracing paper.
     PaperWork paper = 3;
@@ -799,11 +796,12 @@ message Work {
 
 // The work of a handwriting sheet.
 message SheetWork {
-  // The PNG of the crop of the visible strokes, without its `sheet_box`.
+  // The PNG of the crop of the visible strokes, without its `sheet_box`: on a task of a module, the
+  // strokes on the sheet of a task from paper, drawn without the tracing paper under them.
   bytes crop = 1;
 }
 
-// The work of a page of a workbook.
+// The work of a page of a workbook: no longer used, as `Work.workbook`.
 message WorkbookWork {
   // Each filled box, in the task's order. A box left empty sends nothing, and the draft, the
   // writing outside the boxes, goes nowhere.
@@ -882,8 +880,8 @@ message AnswerSlotVerdict {
   novatrail.observation.v1.CropBox crop_box = 5;
 }
 
-// What reaches the device once the task is solved: its attempt closed by a correct answer, by the
-// solution shown, or by "Done".
+// What reaches the device once the task is solved: its attempt closed by a correct answer or by
+// "Done".
 message SolvedTask {
   // The key of each answer slot that has one, in the task's order: a slot whose check is a
   // predicate or a rubric has none.
@@ -898,9 +896,8 @@ message SolvedTask {
   repeated string criteria = 4;
 }
 
-// What comes next once an attempt is closed by a correct answer, by the solution shown or by
-// "Done". A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key,
-// and of `Done` by the state of the attempt.
+// What comes next once an attempt is closed by a correct answer or by "Done". A repeat gets the
+// same: of `SubmitWork` with the same idempotency key, and of `Done` by the state of the attempt.
 message Next {
   // In a lesson, the segment that comes next; outside a lesson, the engine's choice.
   oneof next {

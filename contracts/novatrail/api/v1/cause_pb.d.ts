@@ -394,25 +394,25 @@ export enum Cause {
   KEY_REFUSED = 12,
 
   /**
-   * A learning request to show the solution, while the child's setting "ask before showing" is on:
-   * the solution is shown by an action of an adult. Or a learning request on what an adult decides
-   * at a profile whose consent an adult gave: the learner's own consent, its withdrawal, the
-   * storage of works and the export. Code `permission_denied`.
+   * A learning request on what an adult decides at a profile whose consent an adult gave: the
+   * learner's own consent, its withdrawal, the storage of works and the export. Code
+   * `permission_denied`.
    *
    * @generated from enum value: CAUSE_ADULT_NEEDED = 13;
    */
   ADULT_NEEDED = 13,
 
   /**
-   * A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
+   * Not given: no solution is shown on any task, so none is asked for before the fourth wrong
+   * answer. Code `failed_precondition`.
    *
    * @generated from enum value: CAUSE_LADDER_NOT_PASSED = 14;
    */
   LADDER_NOT_PASSED = 14,
 
   /**
-   * The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
-   * task from paper, whose solution is never shown. Code `failed_precondition`.
+   * Not given: no task has a solution to show, and `ShowSolution` answers `unimplemented`. Code
+   * `failed_precondition`.
    *
    * @generated from enum value: CAUSE_NO_SHOWING = 15;
    */
@@ -774,7 +774,8 @@ export enum CloseReason {
   CORRECT = 1,
 
   /**
-   * The solution was shown.
+   * The solution was shown: no request closes an attempt so, and an attempt closed so before keeps
+   * it.
    *
    * @generated from enum value: CLOSE_REASON_SOLUTION_SHOWN = 2;
    */

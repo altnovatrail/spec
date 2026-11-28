@@ -591,10 +591,12 @@ type ConnectedModule struct {
 	// digest there is no manifest to name the module by: `app` names it by the title of a manifest
 	// it keeps of an earlier version, or else by its ID.
 	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
-	// The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
-	// `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
-	// and none evidence of the learner model; the engine chooses none of them. `api` names such
-	// modules; none is a field of the module format.
+	// The module is a page of tasks from paper: `app` opens its tasks on the sheet of a task from
+	// paper all at once, by `PaperService.BeginPaperAttempts` with its ID, each judged by a model as
+	// a task from paper is and none evidence of the learner model; the engine chooses none of them.
+	// Every other module is solved on the same sheet one task at a time, which
+	// `LearningService.ChooseNext` chooses and `BeginAttempt` begins, its verdict the program's by
+	// its key. `api` names such modules; none is a field of the module format.
 	OnSheet bool `protobuf:"varint,4,opt,name=on_sheet,json=onSheet,proto3" json:"on_sheet,omitempty"`
 	// The task skill: the full ID of the skill the learner chose for the module's tasks, empty while
 	// the tutor chooses. A skill the graph of the current version no longer has is empty here, and

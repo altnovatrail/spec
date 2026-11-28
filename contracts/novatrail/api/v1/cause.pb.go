@@ -81,15 +81,15 @@ const (
 	// The provider refused the learner's own key: it is not valid, or it was revoked. An outcome
 	// alone: the call does not move to platform AI.
 	Cause_CAUSE_KEY_REFUSED Cause = 12
-	// A learning request to show the solution, while the child's setting "ask before showing" is on:
-	// the solution is shown by an action of an adult. Or a learning request on what an adult decides
-	// at a profile whose consent an adult gave: the learner's own consent, its withdrawal, the
-	// storage of works and the export. Code `permission_denied`.
+	// A learning request on what an adult decides at a profile whose consent an adult gave: the
+	// learner's own consent, its withdrawal, the storage of works and the export. Code
+	// `permission_denied`.
 	Cause_CAUSE_ADULT_NEEDED Cause = 13
-	// A child asks for the solution before the fourth wrong answer. Code `failed_precondition`.
+	// Not given: no solution is shown on any task, so none is asked for before the fourth wrong
+	// answer. Code `failed_precondition`.
 	Cause_CAUSE_LADDER_NOT_PASSED Cause = 14
-	// The task has nothing to show by this request: a task with a rubric, which "Done" ends, and a
-	// task from paper, whose solution is never shown. Code `failed_precondition`.
+	// Not given: no task has a solution to show, and `ShowSolution` answers `unimplemented`. Code
+	// `failed_precondition`.
 	Cause_CAUSE_NO_SHOWING Cause = 15
 	// The attempt has no rung: no wrong answer yet, or a task with a rubric. Code
 	// `failed_precondition`.
@@ -415,7 +415,8 @@ const (
 	CloseReason_CLOSE_REASON_UNSPECIFIED CloseReason = 0
 	// A submission whose every item is correct.
 	CloseReason_CLOSE_REASON_CORRECT CloseReason = 1
-	// The solution was shown.
+	// The solution was shown: no request closes an attempt so, and an attempt closed so before keeps
+	// it.
 	CloseReason_CLOSE_REASON_SOLUTION_SHOWN CloseReason = 2
 	// The learner left it, beginning another attempt.
 	CloseReason_CLOSE_REASON_LEFT CloseReason = 3

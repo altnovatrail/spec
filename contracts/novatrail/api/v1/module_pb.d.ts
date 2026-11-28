@@ -303,10 +303,12 @@ export declare type ConnectedModule = Message<"novatrail.api.v1.ConnectedModule"
   packageDigest: string;
 
   /**
-   * The module is solved on the sheet of a task from paper: `app` opens its tasks there, by
-   * `PaperService.BeginPaperAttempts` with its ID, each checked by a model as a task from paper is
-   * and none evidence of the learner model; the engine chooses none of them. `api` names such
-   * modules; none is a field of the module format.
+   * The module is a page of tasks from paper: `app` opens its tasks on the sheet of a task from
+   * paper all at once, by `PaperService.BeginPaperAttempts` with its ID, each judged by a model as
+   * a task from paper is and none evidence of the learner model; the engine chooses none of them.
+   * Every other module is solved on the same sheet one task at a time, which
+   * `LearningService.ChooseNext` chooses and `BeginAttempt` begins, its verdict the program's by
+   * its key. `api` names such modules; none is a field of the module format.
    *
    * @generated from field: bool on_sheet = 4;
    */

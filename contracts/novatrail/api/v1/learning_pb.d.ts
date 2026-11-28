@@ -237,7 +237,7 @@ export declare type AttemptStart = Message<"novatrail.api.v1.AttemptStart"> & {
 
   /**
    * The digest of the package the attempt goes on, by which `app` takes the open views of its
-   * manifest, technique catalog and solving steps.
+   * manifest and technique catalog.
    *
    * @generated from field: string package_digest = 3;
    */
@@ -348,7 +348,8 @@ export declare type OpenAttempt = Message<"novatrail.api.v1.OpenAttempt"> & {
   explainedDifferently: boolean;
 
   /**
-   * The IDs of the techniques given at a step, local IDs of the technique catalog.
+   * No longer used: no screen leads a task's solving steps, so no step gives a technique. `api`
+   * gives it empty.
    *
    * @generated from field: repeated string step_technique_ids = 6;
    */

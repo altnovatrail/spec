@@ -469,7 +469,7 @@ type AttemptStart struct {
 	// The open view of the task, of the instance when the task is a template.
 	Task *OpenView `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
 	// The digest of the package the attempt goes on, by which `app` takes the open views of its
-	// manifest, technique catalog and solving steps.
+	// manifest and technique catalog.
 	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
 	// The task segment, when the attempt is one of a lesson run; absent outside a lesson.
 	Segment       *SegmentPlace `protobuf:"bytes,4,opt,name=segment,proto3" json:"segment,omitempty"`
@@ -651,7 +651,8 @@ type OpenAttempt struct {
 	Rung *RungHint `protobuf:"bytes,4,opt,name=rung,proto3" json:"rung,omitempty"`
 	// Whether "explain differently" was asked for on the current rung.
 	ExplainedDifferently bool `protobuf:"varint,5,opt,name=explained_differently,json=explainedDifferently,proto3" json:"explained_differently,omitempty"`
-	// The IDs of the techniques given at a step, local IDs of the technique catalog.
+	// No longer used: no screen leads a task's solving steps, so no step gives a technique. `api`
+	// gives it empty.
 	StepTechniqueIds []string `protobuf:"bytes,6,rep,name=step_technique_ids,json=stepTechniqueIds,proto3" json:"step_technique_ids,omitempty"`
 	// The IDs of the techniques given on request.
 	RequestedTechniqueIds []string `protobuf:"bytes,7,rep,name=requested_technique_ids,json=requestedTechniqueIds,proto3" json:"requested_technique_ids,omitempty"`

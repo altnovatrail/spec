@@ -5,8 +5,8 @@
 // source: novatrail/api/v1/attempt.proto
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
-// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// and the verdict, the tutor's words and marks, hints, grown-up mode, and "Done" on a task with a
+// rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
 // with the same idempotency key answers are the rules of contracts/README.md for
 // the contract between `app` and `api`.
@@ -343,10 +343,11 @@ type SubmitWorkRequest struct {
 	// The idempotency key of this action of the learner: `app` makes one for it, and sends it again
 	// with every repeat of it.
 	IdempotencyKey string `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// The handwriting for checking: absent when the task's answer slots are bound `choice` alone.
+	// The handwriting for checking, `sheet` on a task of a module and `paper` on a task from paper:
+	// absent when the task's answer slots are bound `choice` alone.
 	Work *Work `protobuf:"bytes,4,opt,name=work,proto3" json:"work,omitempty"`
-	// The options tapped, one for each answer slot bound `choice` that the learner tapped one of, in
-	// the task's order.
+	// The options tapped on the tracing paper, one for each answer slot bound `choice` that the
+	// learner tapped one of, in the task's order.
 	TappedChoices []*TappedChoice `protobuf:"bytes,5,rep,name=tapped_choices,json=tappedChoices,proto3" json:"tapped_choices,omitempty"`
 	// The learner's own key and its provider: with a profile of its owner, when AI reads the work.
 	// Its provider names the route of the engine's choice in `next` too.
@@ -2010,12 +2011,12 @@ func (x *AskTutorResponse) GetRepeated() bool {
 	return false
 }
 
-// A request of a grown-up in grown-up mode on a task from paper.
+// A request of a grown-up in grown-up mode on a task from paper or of a module.
 type AskGrownUpRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile whose attempt it is.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
-	// The attempt, of a task from paper.
+	// The attempt, of a task from paper or of a module.
 	AttemptId string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
 	// The idempotency key of this request: `app` makes one for it, and sends it again with every
 	// repeat of it.
@@ -2026,7 +2027,8 @@ type AskGrownUpRequest struct {
 	// The conversation on the task before the request, oldest first, as in `AskTutorRequest`: at
 	// most 8 turns, each at most 1000 code points.
 	Turns []*TutorTurn `protobuf:"bytes,5,rep,name=turns,proto3" json:"turns,omitempty"`
-	// The work as it stands, `paper` alone: the drawing reads its `statement`, and its `crop`, which
+	// The work as it stands, `paper` alone, on a task of a module too, its `statement` the picture
+	// `app` drew of the module's text: the drawing reads its `statement`, and its `crop`, which
 	// is the part of the sheet in sight, as the grown-up sees it, with room to write in — not the crop
 	// of the Check, which ends at the strokes —, and may hold no stroke.
 	Work *Work `protobuf:"bytes,6,opt,name=work,proto3" json:"work,omitempty"`
@@ -2724,7 +2726,7 @@ func (x *RungHint) GetWords() string {
 	return ""
 }
 
-// The beginning of a solving step.
+// The beginning of a solving step: no longer used, as `BeginStep`.
 type BeginStepRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile whose attempt it is.
@@ -2788,7 +2790,7 @@ func (x *BeginStepRequest) GetStep() int32 {
 	return 0
 }
 
-// What the beginning of a step gives.
+// What the beginning of a step gives: no longer used, as `BeginStep`.
 type BeginStepResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The task's techniques.
@@ -2834,7 +2836,7 @@ func (x *BeginStepResponse) GetTechniques() *Techniques {
 	return nil
 }
 
-// A request to show the solution.
+// A request to show the solution: no longer used, as `ShowSolution`.
 type ShowSolutionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile whose attempt it is.
@@ -2918,7 +2920,7 @@ func (x *ShowSolutionRequest) GetOwnKeyProvider() string {
 	return ""
 }
 
-// The solution shown.
+// The solution shown: no longer used, as `ShowSolution`.
 type ShowSolutionResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The solved task.
@@ -3139,10 +3141,11 @@ func (x *ReportProblemResponse) GetReviewBy() *timestamppb.Timestamp {
 	return nil
 }
 
-// The work for checking: a sheet's crop, the crops of a workbook's filled boxes, or the work of a
-// task from paper. Nothing of the writing history, of the context of the submission, of the groups
-// of strokes or of the text of an item goes with it. An attempt of a task from paper takes `paper`
-// alone, and an attempt of a task of a module never takes it: another gets `invalid_argument`.
+// The work for checking: a sheet's crop, or the work of a task from paper. Nothing of the writing
+// history, of the context of the submission, of the groups of strokes or of the text of an item
+// goes with it. An attempt of a task from paper takes `paper` alone, and an attempt of a task of a
+// module takes `sheet` alone, but for `AskGrownUp`, which takes `paper` alone on either: another
+// gets `invalid_argument`.
 type Work struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Where the work was written.
@@ -3231,7 +3234,8 @@ type Work_Sheet struct {
 }
 
 type Work_Workbook struct {
-	// A page of a workbook.
+	// No longer used: no task is solved on a page of a workbook. `app` sends none, and `api`
+	// answers it `invalid_argument`.
 	Workbook *WorkbookWork `protobuf:"bytes,2,opt,name=workbook,proto3,oneof"`
 }
 
@@ -3249,7 +3253,8 @@ func (*Work_Paper) isWork_Surface() {}
 // The work of a handwriting sheet.
 type SheetWork struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The PNG of the crop of the visible strokes, without its `sheet_box`.
+	// The PNG of the crop of the visible strokes, without its `sheet_box`: on a task of a module, the
+	// strokes on the sheet of a task from paper, drawn without the tracing paper under them.
 	Crop          []byte `protobuf:"bytes,1,opt,name=crop,proto3" json:"crop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3292,7 +3297,7 @@ func (x *SheetWork) GetCrop() []byte {
 	return nil
 }
 
-// The work of a page of a workbook.
+// The work of a page of a workbook: no longer used, as `Work.workbook`.
 type WorkbookWork struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Each filled box, in the task's order. A box left empty sends nothing, and the draft, the
@@ -3721,8 +3726,8 @@ func (x *AnswerSlotVerdict) GetCropBox() *v1.CropBox {
 	return nil
 }
 
-// What reaches the device once the task is solved: its attempt closed by a correct answer, by the
-// solution shown, or by "Done".
+// What reaches the device once the task is solved: its attempt closed by a correct answer or by
+// "Done".
 type SolvedTask struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The key of each answer slot that has one, in the task's order: a slot whose check is a
@@ -3798,9 +3803,8 @@ func (x *SolvedTask) GetCriteria() []string {
 	return nil
 }
 
-// What comes next once an attempt is closed by a correct answer, by the solution shown or by
-// "Done". A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key,
-// and of `Done` by the state of the attempt.
+// What comes next once an attempt is closed by a correct answer or by "Done". A repeat gets the
+// same: of `SubmitWork` with the same idempotency key, and of `Done` by the state of the attempt.
 type Next struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// In a lesson, the segment that comes next; outside a lesson, the engine's choice.

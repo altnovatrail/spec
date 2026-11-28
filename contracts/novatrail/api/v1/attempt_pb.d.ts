@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 // The checking of an attempt in the contract between `app` and `api`: the submission of the work
-// and the verdict, the tutor's words and marks, hints, the solution shown, and "Done" on a task
-// with a rubric — of a task of a module, and of a task from the learner's paper, whose attempts
+// and the verdict, the tutor's words and marks, hints, grown-up mode, and "Done" on a task with a
+// rubric — of a task of a module, and of a task from the learner's paper, whose attempts
 // `PaperService` begins. What each message means, what never reaches the device, and what a repeat
 // with the same idempotency key answers are the rules of contracts/README.md for
 // the contract between `app` and `api`.
@@ -49,15 +49,16 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
   idempotencyKey: string;
 
   /**
-   * The handwriting for checking: absent when the task's answer slots are bound `choice` alone.
+   * The handwriting for checking, `sheet` on a task of a module and `paper` on a task from paper:
+   * absent when the task's answer slots are bound `choice` alone.
    *
    * @generated from field: novatrail.api.v1.Work work = 4;
    */
   work?: Work | undefined;
 
   /**
-   * The options tapped, one for each answer slot bound `choice` that the learner tapped one of, in
-   * the task's order.
+   * The options tapped on the tracing paper, one for each answer slot bound `choice` that the
+   * learner tapped one of, in the task's order.
    *
    * @generated from field: repeated novatrail.api.v1.TappedChoice tapped_choices = 5;
    */
@@ -1024,7 +1025,7 @@ export declare type AskTutorResponse = Message<"novatrail.api.v1.AskTutorRespons
 export declare const AskTutorResponseSchema: GenMessage<AskTutorResponse>;
 
 /**
- * A request of a grown-up in grown-up mode on a task from paper.
+ * A request of a grown-up in grown-up mode on a task from paper or of a module.
  *
  * @generated from message novatrail.api.v1.AskGrownUpRequest
  */
@@ -1037,7 +1038,7 @@ export declare type AskGrownUpRequest = Message<"novatrail.api.v1.AskGrownUpRequ
   profileId: string;
 
   /**
-   * The attempt, of a task from paper.
+   * The attempt, of a task from paper or of a module.
    *
    * @generated from field: string attempt_id = 2;
    */
@@ -1068,7 +1069,8 @@ export declare type AskGrownUpRequest = Message<"novatrail.api.v1.AskGrownUpRequ
   turns: TutorTurn[];
 
   /**
-   * The work as it stands, `paper` alone: the drawing reads its `statement`, and its `crop`, which
+   * The work as it stands, `paper` alone, on a task of a module too, its `statement` the picture
+   * `app` drew of the module's text: the drawing reads its `statement`, and its `crop`, which
    * is the part of the sheet in sight, as the grown-up sees it, with room to write in — not the crop
    * of the Check, which ends at the strokes —, and may hold no stroke.
    *
@@ -1427,7 +1429,7 @@ export declare type RungHint = Message<"novatrail.api.v1.RungHint"> & {
 export declare const RungHintSchema: GenMessage<RungHint>;
 
 /**
- * The beginning of a solving step.
+ * The beginning of a solving step: no longer used, as `BeginStep`.
  *
  * @generated from message novatrail.api.v1.BeginStepRequest
  */
@@ -1461,7 +1463,7 @@ export declare type BeginStepRequest = Message<"novatrail.api.v1.BeginStepReques
 export declare const BeginStepRequestSchema: GenMessage<BeginStepRequest>;
 
 /**
- * What the beginning of a step gives.
+ * What the beginning of a step gives: no longer used, as `BeginStep`.
  *
  * @generated from message novatrail.api.v1.BeginStepResponse
  */
@@ -1481,7 +1483,7 @@ export declare type BeginStepResponse = Message<"novatrail.api.v1.BeginStepRespo
 export declare const BeginStepResponseSchema: GenMessage<BeginStepResponse>;
 
 /**
- * A request to show the solution.
+ * A request to show the solution: no longer used, as `ShowSolution`.
  *
  * @generated from message novatrail.api.v1.ShowSolutionRequest
  */
@@ -1531,7 +1533,7 @@ export declare type ShowSolutionRequest = Message<"novatrail.api.v1.ShowSolution
 export declare const ShowSolutionRequestSchema: GenMessage<ShowSolutionRequest>;
 
 /**
- * The solution shown.
+ * The solution shown: no longer used, as `ShowSolution`.
  *
  * @generated from message novatrail.api.v1.ShowSolutionResponse
  */
@@ -1656,10 +1658,11 @@ export declare type ReportProblemResponse = Message<"novatrail.api.v1.ReportProb
 export declare const ReportProblemResponseSchema: GenMessage<ReportProblemResponse>;
 
 /**
- * The work for checking: a sheet's crop, the crops of a workbook's filled boxes, or the work of a
- * task from paper. Nothing of the writing history, of the context of the submission, of the groups
- * of strokes or of the text of an item goes with it. An attempt of a task from paper takes `paper`
- * alone, and an attempt of a task of a module never takes it: another gets `invalid_argument`.
+ * The work for checking: a sheet's crop, or the work of a task from paper. Nothing of the writing
+ * history, of the context of the submission, of the groups of strokes or of the text of an item
+ * goes with it. An attempt of a task from paper takes `paper` alone, and an attempt of a task of a
+ * module takes `sheet` alone, but for `AskGrownUp`, which takes `paper` alone on either: another
+ * gets `invalid_argument`.
  *
  * @generated from message novatrail.api.v1.Work
  */
@@ -1679,7 +1682,8 @@ export declare type Work = Message<"novatrail.api.v1.Work"> & {
     case: "sheet";
   } | {
     /**
-     * A page of a workbook.
+     * No longer used: no task is solved on a page of a workbook. `app` sends none, and `api`
+     * answers it `invalid_argument`.
      *
      * @generated from field: novatrail.api.v1.WorkbookWork workbook = 2;
      */
@@ -1709,7 +1713,8 @@ export declare const WorkSchema: GenMessage<Work>;
  */
 export declare type SheetWork = Message<"novatrail.api.v1.SheetWork"> & {
   /**
-   * The PNG of the crop of the visible strokes, without its `sheet_box`.
+   * The PNG of the crop of the visible strokes, without its `sheet_box`: on a task of a module, the
+   * strokes on the sheet of a task from paper, drawn without the tracing paper under them.
    *
    * @generated from field: bytes crop = 1;
    */
@@ -1723,7 +1728,7 @@ export declare type SheetWork = Message<"novatrail.api.v1.SheetWork"> & {
 export declare const SheetWorkSchema: GenMessage<SheetWork>;
 
 /**
- * The work of a page of a workbook.
+ * The work of a page of a workbook: no longer used, as `Work.workbook`.
  *
  * @generated from message novatrail.api.v1.WorkbookWork
  */
@@ -1950,8 +1955,8 @@ export declare type AnswerSlotVerdict = Message<"novatrail.api.v1.AnswerSlotVerd
 export declare const AnswerSlotVerdictSchema: GenMessage<AnswerSlotVerdict>;
 
 /**
- * What reaches the device once the task is solved: its attempt closed by a correct answer, by the
- * solution shown, or by "Done".
+ * What reaches the device once the task is solved: its attempt closed by a correct answer or by
+ * "Done".
  *
  * @generated from message novatrail.api.v1.SolvedTask
  */
@@ -1995,9 +2000,8 @@ export declare type SolvedTask = Message<"novatrail.api.v1.SolvedTask"> & {
 export declare const SolvedTaskSchema: GenMessage<SolvedTask>;
 
 /**
- * What comes next once an attempt is closed by a correct answer, by the solution shown or by
- * "Done". A repeat gets the same: of `SubmitWork` and `ShowSolution` with the same idempotency key,
- * and of `Done` by the state of the attempt.
+ * What comes next once an attempt is closed by a correct answer or by "Done". A repeat gets the
+ * same: of `SubmitWork` with the same idempotency key, and of `Done` by the state of the attempt.
  *
  * @generated from message novatrail.api.v1.Next
  */
@@ -2353,8 +2357,8 @@ export declare const MarkKindSchema: GenEnum<MarkKind>;
  * sign-in service and may get the refusals of every request with a token, which the comment of
  * `AccountService` names with what `app` does on each; a request of a profile whose consent is not
  * confirmed gets `CAUSE_NO_CONSENT`, and one of a profile whose age is to be given again
- * `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer, by the
- * solution shown or by "Done" says what comes next, `next`: an attempt begins by
+ * `CAUSE_AGE_NEEDED`. An answer that closes the attempt by a correct answer or by "Done"
+ * says what comes next, `next`: an attempt begins by
  * `LearningService`. The engine's choice in `next` goes by the route to AI that the request
  * names, the own key's by the provider of its `own_key` or by its `own_key_provider`, or platform
  * AI's without either, as `ChooseNext` judges it. An attempt of a task from paper
@@ -2544,20 +2548,21 @@ export declare const AttemptService: GenService<{
     output: typeof AskTutorResponseSchema;
   },
   /**
-   * A request of a grown-up in grown-up mode on a task from paper, behind the grown-ups' PIN that
-   * `app` asks: one call of AI, the drawing, which has none of the tutor's limits — it may give
-   * the whole solution — and acts on the sheet as asked: writes on it, strikes out, circles,
-   * hatches, erases. It reads the crop of the work and the strokes the crop shows, by their IDs and
-   * points, the request and the conversation, all as data, never as instructions. The answer is
-   * the tutor's words and its act on the sheet, whole: the strokes to write and the IDs of the
-   * strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
-   * strokes, nor the answer, in no log and no record of the key; an attempt of a task from paper
-   * gives no evidence, so the act changes no progress. Refusals: `CAUSE_ATTEMPT_CLOSED`,
-   * `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a
-   * module, a request empty or too long, a stroke with too many points, gets `invalid_argument`.
-   * A call of AI that gives no act, the quota, the limit of platform AI and no admission are no
-   * refusal: the answer holds no words and no act, and names the outcome. A repeat with the same
-   * idempotency key gets `repeated` alone: the server keeps nothing of the answer.
+   * A request of a grown-up in grown-up mode on a task from paper or of a module, behind the
+   * grown-ups' PIN that `app` asks: one call of AI, the drawing, which has none of the tutor's
+   * limits — it may give the whole solution — and acts on the sheet as asked: writes on it, strikes
+   * out, circles, hatches, erases. It reads the crop of the work and the strokes the crop shows, by
+   * their IDs and points, the request and the conversation, all as data, never as instructions. The
+   * answer is the tutor's words and its act on the sheet, whole: the strokes to write and the IDs
+   * of the strokes to take off, in the crop's pixels. The server keeps neither the request, nor the
+   * strokes, nor the answer, in no log and no record of the key. An attempt of a task from paper
+   * gives no evidence, nor does an attempt of a task of a module once grown-up mode acted on it —
+   * the one thing `api` keeps of it —, its verdicts still shown: the act changes no progress.
+   * Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+   * `CAUSE_STILL_GOING`; a request empty or too long, a stroke with too many points, gets
+   * `invalid_argument`. A call of AI that gives no act, the quota, the limit of platform AI and no
+   * admission are no refusal: the answer holds no words and no act, and names the outcome. A repeat
+   * with the same idempotency key gets `repeated` alone: the server keeps nothing of the answer.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.AskGrownUp
    */
@@ -2587,9 +2592,8 @@ export declare const AttemptService: GenService<{
     output: typeof ReadStatementResponseSchema;
   },
   /**
-   * Begins a step of the task's solving steps whose `gives` gives techniques, in the mode "by
-   * steps": the answer is the IDs of the task's techniques. "Step done" sends no request. Refusals:
-   * `CAUSE_ATTEMPT_CLOSED`. It carries no idempotency key: it repeats by the attempt's state.
+   * No longer used: no screen leads a task's solving steps. `app` sends none, and `api` no longer
+   * holds it and answers `unimplemented`.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.BeginStep
    */
@@ -2599,15 +2603,8 @@ export declare const AttemptService: GenService<{
     output: typeof BeginStepResponseSchema;
   },
   /**
-   * Shows the solution, by a learning action or by an action of an adult, and closes the attempt
-   * `CLOSE_REASON_SOLUTION_SHOWN`; a task with a rubric and a task from paper have none to show,
-   * `CAUSE_NO_SHOWING`. A learning action needs the right `can_learn`, and an action of
-   * an adult `can_manage`: a request without it gets the code `permission_denied`. The PIN of the
-   * section for adults is a barrier of the interface, not of the server. Refusals:
-   * `CAUSE_ADULT_NEEDED`, `CAUSE_LADDER_NOT_PASSED`, by either kind of action,
-   * `CAUSE_NO_SHOWING`, `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-   * `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`. A repeat with the same idempotency key gets
-   * the solution again.
+   * No longer used: no solution is shown on any task. `app` sends none, and `api` no longer holds
+   * it and answers `unimplemented`.
    *
    * @generated from rpc novatrail.api.v1.AttemptService.ShowSolution
    */

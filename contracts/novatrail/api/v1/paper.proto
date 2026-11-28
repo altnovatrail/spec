@@ -37,7 +37,7 @@ service PaperService {
   // Begins the attempts of the tasks picked on a page, one for each, in the order of the tasks. It
   // closes the open attempts of tasks from paper that the profile has on another page,
   // `CLOSE_REASON_LEFT`, and none of the same page, and leaves the open attempt of a task of a
-  // module as it is. With `module_id`, the page is a module solved on the sheet
+  // module as it is. With `module_id`, the page is a module that is a page of tasks from paper
   // (`ConnectedModule.on_sheet`): its tasks are those of the package of the module's current
   // version, in its order, at most 20, and the answer gives the open view of each, which `app`
   // draws as the statement in place of a crop. Refusals: `CAUSE_QUOTA`, `CAUSE_PLATFORM_LIMIT` and
