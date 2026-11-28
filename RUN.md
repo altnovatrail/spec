@@ -51,18 +51,6 @@ A task starts with «Выполни задачу T01 из RUN.md» in a new sess
 - **DPIA** ([docs/dpia.md](docs/dpia.md), R129): a task that changes what it rests on — a kind of data or retention, a provider or processor, an AI capability or route, opening an age, a country or a feature to children — reviews it; its «Сделано» names the review, the DPIA's log the version. Also before the beta, before the public launch and at least yearly.
 - **Token savings** (R145): the limits of `docs-check` — [tools/docs-check/budgets.json](tools/docs-check/budgets.json), a raise shows in review; measure at an epic's archive and monthly (`just inbox` reminds, rule 13); a task of analysis goes to `run/TASKS.md` by the threshold of R145, and its planning decides whether it needs an epic; baselines, dates, last analysis — measurements 1.9.
 
-## Table 1. Current epic — E27. Мелкие ошибки интерфейса
+## Table 1. Current epic — none
 
-**Результат** — мелкие ошибки интерфейса, которые автор находит на стенде и на планшете, исправлены и выпущены.
-
-**Основа** — на 2026-11-28, ветка `e27` в `spec`, `app`, `api`, `canvas`, `tutor` (клоны `.epics/e27`, задача across repositories, R166; репозиторий добавляется, когда его тронет задача); в проде spec v0.22.0, api v0.1.84, app v0.1.64, canvas v0.3.50, tutor v0.1.69, engine v0.1.22, modules v0.2.19 (развёртывание — PR `infra` #155); последний сделанный эпик — E26, [docs/plan/E26.md](docs/plan/E26.md).
-
-**Решено автором (2026-11-28):** задачи заводит автор по одной, по своим находкам, следующими номерами с T372; каждая — причина и правка с тестом, который без правки падает, документы репозитория и, если тронут вид, макет `draft/mockup`, тесты в трёх браузерах, biome и tsc, строка `[x]` здесь и тело в `docs/plan/E27.md`, `just docs-check`, коммит и пуш в `e27` сразу; стенд — всегда `xrepo serve --ai`, перезапуск — без вопроса; pull requests, мержи, выпуск и деплой — только `xrepo ship` после «да» автора; эпик закрывается по слову автора; содержание олимпиадного модуля не трогать — кроме пяти вариантов ответа T376, по слову автора; вопросы и отчёты — по-русски.
-
-| Status | ID | Task | Who | Plan | Depends on |
-|---|---|---|---|---|---|
-| [x] | T372 | Подпись карточки «Задачи с моей бумаги» — «Сфотографируйте страницу, выберите задачи и начните решать» | я + Claude | — | — |
-| [x] | T373 | Поле вопроса наставнику на задаче модуля, как на задаче с бумаги: одна панель на всех задачах | я + Claude | — | — |
-| [x] | T374 | Пять макетов скрытых вариантов ответа на кальке — артефакт Claude; автор выбрал «Кнопку под условием» | я + Claude | — | — |
-| [x] | T375 | Варианты ответа на кальке за кнопкой «Варианты ответа»: нажатие — сразу ответ, проверка программой без ИИ; калька задачи модуля непрозрачна | я + Claude | — | — |
-| [x] | T376 | Пять вариантов ответа пишет сам олимпиадный модуль: недостающие ловушки дописаны в модуль, программа больше не добирает соседними числами | я + Claude | — | — |
+The last done epic is E27, [docs/plan/E27.md](docs/plan/E27.md).
