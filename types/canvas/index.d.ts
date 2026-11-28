@@ -84,20 +84,25 @@ export interface PaperTask {
   /**
    * Where the picture comes from: "photo", as it is when absent, or "module". A task of a module
    * shows the sign "Task of the module" above the paper and offers no "Recognise", whatever
-   * `reading` holds: its statement is the module's text already. Any other value is a TypeError.
+   * `reading` holds: its statement is the module's text already. Its tracing paper is opaque, white
+   * over the sheet's grid; a photo's lets the grid show through. Any other value is a TypeError.
    */
   readonly source?: "photo" | "module";
   /**
-   * The options of a task of a module whose answer slot is bound `choice`, their texts in the order
-   * the open view of the task writes them; absent for any other task. The element draws them as
-   * buttons on the tracing paper under the statement, a part of it that moves, scales and hides with
-   * it, and the learner still writes on the tracing paper and the sheet beside them. A tap tells an
-   * `optiontap`; which option is chosen is the consumer's, `chosen`. Options on a task whose
-   * `source` is not "module", or an empty list, or a text empty or of white space alone, are a
-   * TypeError.
+   * The options of the answer of a task of a module, their texts in the order the consumer gives;
+   * absent for a task with none. The element keeps them behind one button under the statement,
+   * "Answer options", and draws them in its place once the learner taps it: buttons on the tracing
+   * paper, a part of it that moves, scales and hides with it, and the learner still writes on the
+   * tracing paper and the sheet beside them. Each new `paper` shuts them behind the button again. A
+   * tap tells an `optiontap`; which option is chosen is the consumer's, `chosen`, and what each
+   * came to, `optionVerdicts`. Options on a task whose `source` is not "module", or a list of
+   * fewer than two, or a text empty or of white space alone, are a TypeError.
    */
   readonly options?: readonly string[];
 }
+
+/** What an option of `PaperTask.options` came to: the program's verdict on it as the answer. */
+export type OptionVerdict = "correct" | "not_yet";
 
 /** What an `optiontap` tells: the option the learner tapped, by its index in `PaperTask.options`. */
 export interface OptionTap {
@@ -828,6 +833,16 @@ export interface CanvasElement extends HTMLElement {
    */
   get chosen(): number | undefined;
   set chosen(option: number | undefined);
+  /**
+   * What each option of the task from paper's `options` came to, by its index: "correct" draws it
+   * green with a tick, "not_yet" orange and struck out, and `null` as it is. Once one is "correct",
+   * the others are drawn faded. An option judged tells no `optiontap` any more, nor does any once
+   * one is "correct". Empty as a task from paper comes; the consumer sets it as each verdict comes
+   * and gives it back to open the task as it was. A list not of the options' length, or with
+   * another value, is a TypeError.
+   */
+  get optionVerdicts(): readonly (OptionVerdict | null)[];
+  set optionVerdicts(verdicts: readonly (OptionVerdict | null)[]);
   /**
    * The settings of the pen and the eraser, frozen: canvas's as an element comes. The learner
    * changes them in the popovers of the pen and the eraser, which a `penchange` tells; the consumer

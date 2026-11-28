@@ -261,17 +261,19 @@ type AttemptServiceClient interface {
 	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
 	// request once it keeps them, gets them with no AI; a fallback text is not kept.
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
-	// A question of the learner's own about a task from paper, typed in the tutor's field or said
-	// into it and read before Send: one call of AI, the words of a task from paper, which answers as
-	// the tutor does — never with the answer or a step the learner has not written —, with the
-	// tasks of the frame as the Check the attempt keeps gave them, the hints given, and the
-	// conversation on the task so far as `app` holds it. The question and the conversation go to
-	// the AI as data, never as instructions, and the server keeps neither, in no log and no record of
-	// the key. While the attempt keeps no Check, the Check reads the work as it stands first, as
-	// `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
-	// counted. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a module, a question empty or
-	// too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
+	// A question of the learner's own about a task from paper or of a module, typed in the tutor's
+	// field or said into it and read before Send: one call of AI, the words of a task from paper,
+	// which answers as the tutor does — never with the answer or a step the learner has not
+	// written —, with the tasks of the frame as the Check the attempt keeps gave them, or the task
+	// of a module — its statement, its solution and the keys of its answer slots, in the module's
+	// language of explanations, held by its own leak check —, the hints given, and the conversation
+	// on the task so far as `app` holds it. The question and the conversation go to the AI as data,
+	// never as instructions, and the server keeps neither, in no log and no record of the key. While
+	// the attempt of a task from paper keeps no Check, the Check reads the work as it stands first,
+	// as `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
+	// counted; a task of a module has no Check and its work is not read. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; an essay, a question empty or too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
 	// platform AI and no admission are no refusal: the answer holds the opening question's fallback
 	// text and names the outcome, as do words that fail the leak check or the form check, with no
 	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps
@@ -411,17 +413,19 @@ type AttemptServiceHandler interface {
 	// outcome. The model's words the attempt keeps: a repeat with the same idempotency key, or a
 	// request once it keeps them, gets them with no AI; a fallback text is not kept.
 	GetOpeningWords(context.Context, *v1.GetOpeningWordsRequest) (*v1.GetOpeningWordsResponse, error)
-	// A question of the learner's own about a task from paper, typed in the tutor's field or said
-	// into it and read before Send: one call of AI, the words of a task from paper, which answers as
-	// the tutor does — never with the answer or a step the learner has not written —, with the
-	// tasks of the frame as the Check the attempt keeps gave them, the hints given, and the
-	// conversation on the task so far as `app` holds it. The question and the conversation go to
-	// the AI as data, never as instructions, and the server keeps neither, in no log and no record of
-	// the key. While the attempt keeps no Check, the Check reads the work as it stands first, as
-	// `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
-	// counted. Refusals: `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`,
-	// `CAUSE_KEY_ALREADY_USED` and `CAUSE_STILL_GOING`; a task of a module, a question empty or
-	// too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
+	// A question of the learner's own about a task from paper or of a module, typed in the tutor's
+	// field or said into it and read before Send: one call of AI, the words of a task from paper,
+	// which answers as the tutor does — never with the answer or a step the learner has not
+	// written —, with the tasks of the frame as the Check the attempt keeps gave them, or the task
+	// of a module — its statement, its solution and the keys of its answer slots, in the module's
+	// language of explanations, held by its own leak check —, the hints given, and the conversation
+	// on the task so far as `app` holds it. The question and the conversation go to the AI as data,
+	// never as instructions, and the server keeps neither, in no log and no record of the key. While
+	// the attempt of a task from paper keeps no Check, the Check reads the work as it stands first,
+	// as `GetOpeningWords` does, and the attempt keeps it with no verdict shown and no wrong answer
+	// counted; a task of a module has no Check and its work is not read. Refusals:
+	// `CAUSE_ATTEMPT_CLOSED`, `CAUSE_KEY_NOT_FOR_PROFILE`, `CAUSE_KEY_ALREADY_USED` and
+	// `CAUSE_STILL_GOING`; an essay, a question empty or too long, gets `invalid_argument`. A call of AI that gives no words, the quota, the limit of
 	// platform AI and no admission are no refusal: the answer holds the opening question's fallback
 	// text and names the outcome, as do words that fail the leak check or the form check, with no
 	// outcome. A repeat with the same idempotency key gets no words and `repeated`: the server keeps

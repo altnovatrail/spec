@@ -182,7 +182,7 @@ In detail — in [privacy.md](privacy.md).
 **Module 1 — olympiad maths 1–6** from MathTrail:
 - the learner is a child, the work is handwriting on a sheet. The manifest names adults too in the audience, `adult`: adults learn on the first slice;
 - one task at a time, chosen by the engine in the module's task skill, on the sheet of a task from paper; its verdict the program's by its key, and its attempt evidence;
-- the answer is a number by hand; a choice of an option, tapped on the tracing paper, is for tasks whose answer is not a number or whose question points to options;
+- the answer is a number by hand, or one of five options behind "Answer options" on the tracing paper — the key and the module's trap values, filled by the program —, tapped and checked by the program at once, with no AI;
 - techniques and traps; Pólya's steps stay the module's solving steps, data that the platform does not run;
 - the explanations are in English, as the standalone tasks and the format examples are; the same module in Russian is another module, with its own name;
 - 753 reference tasks of standalone: the first batch at commit [89986bc](https://github.com/mathtrail/mathtrail-standalone/tree/89986bc), the other 726 at [42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408).
@@ -202,7 +202,7 @@ Beside them stands the module of the check board, «Ознакомительны
 - one canvas kind, the handwriting sheet, with no workbook: every task is solved on the sheet of a task from paper, whose grid the learner turns, dots as it comes;
 - tasks from the learner's paper, for every profile;
 - a check with a verdict and a tutor with a question; feedback by a rubric;
-- the tutor's panel, one on every screen: on a task from paper the learner asks the tutor in their own words, by text and, an adult, by voice, which the browser recognises into the field, to read before Send; the tutor answers with a question that leads on, never with the answer, and the server keeps no question; in grown-up mode, behind the grown-ups' PIN, on a task from paper and on a task of a module alike, it has none of its limits and acts on the sheet as the grown-up asks, the server keeping nothing of it;
+- the tutor's panel, one on every screen: on a task from paper and on a task of a module but an essay the learner asks the tutor in their own words, by text and, an adult, by voice, which the browser recognises into the field, to read before Send; the tutor answers with a question that leads on, never with the answer, and the server keeps no question; in grown-up mode, behind the grown-ups' PIN, on a task from paper and on a task of a module alike, it has none of its limits and acts on the sheet as the grown-up asks, the server keeping nothing of it;
 - voicing of the tutor's words and of the module's open texts by the device's speech synthesis — only with voices by the rule of voicing of [privacy.md](privacy.md), so that the text does not leave the device, without a server and without new data other than a setting in the presentation style (О-23). Its code — before the first child;
 - a skill map for the modules;
 - each module started from its own card on Home: the tile of its lesson, shut while the lessons are remade — they hold only their explanations and worked examples, and their practice goes into them —, and the tile of its tasks, on the skill the tutor picks or the learner chose for it;

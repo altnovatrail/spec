@@ -121,6 +121,9 @@ export const STATES = [
   { name: "board-correct", title: "Correct on a task of the check board, and Next task", from: "board-not-yet", shows: "Correct", run: (t) => t.v().check() },
   // A task of the olympiad module on the same sheet, from Solve on its card: one at a time, as the engine picks it, the skill at the right. A proposal to the author.
   { name: "module-task", title: "A task of the olympiad module on the sheet of a task from paper", from: "home", shows: "Each line in the picture is a match", run: (t) => t.v().mods[0].solve() },
+  { name: "module-task-options", title: "A task of the olympiad module, its answer options opened on the tracing paper", from: "module-task", shows: "13", run: (t) => t.v().tr.open() },
+  { name: "module-task-option-wrong", title: "A wrong option tapped: Not yet at once, the option orange and struck out", from: "module-task-options", shows: "You chose 12", run: (t) => t.v().tr.opts[0].pick() },
+  { name: "module-task-option-correct", title: "The right option tapped: Correct, the option green with a tick, the others faded", from: "module-task-option-wrong", shows: "You chose 10", run: (t) => t.v().tr.opts[2].pick() },
   { name: "module-task-skill", title: "The skill pill: which tasks to solve", from: "module-task", shows: "Which tasks to solve?", run: (t) => t.v().skill.toggle() },
   { name: "module-task-own", title: "A skill of the learner's own chosen at the task", from: "module-task-skill", shows: "Matchstick puzzles", run: (t) => t.v().skill.m.groups[1].chips.find((c) => c.name === "Matchstick puzzles").pick() },
   { name: "module-task-hint", title: "Hint on a task of the olympiad module", from: "module-task", shows: "How many new ones", run: (t) => t.c.askHint() },
@@ -147,10 +150,10 @@ export const STATES = [
   { name: "module-task-report", title: "A task of the olympiad module, Report a problem", from: "module-task-rung", shows: "Send", run: (t) => t.v().msgs.find((m) => m.report).doReport() },
   { name: "module-task-full", title: "A task of the olympiad module, the tutor's sheet over the whole screen", from: "module-task-rung", shows: "Report a problem", run: (t) => t.v().toggleTutorFull() },
   { name: "module-task-quota", title: "A task of the olympiad module, the tutor's time used up: Check reads no work", from: "module-task", shows: "the platform’s AI checks no work", run: (t) => (t.c.setState({ quotaOut: true }), t.ink(), t.v().check()) },
-  { name: "module-choice", title: "A task with a choice: its options on the tracing paper", from: "module-task-correct", shows: "September", run: (t) => t.v().next() },
+  { name: "module-choice", title: "A task with a choice: its options behind their button on the tracing paper", from: "module-task-correct", shows: "Answer options", run: (t) => t.v().next() },
   { name: "module-choice-empty", title: "Check with no option chosen", from: "module-choice", shows: "Choose an answer first", run: (t) => t.v().check() },
-  { name: "module-choice-wrong", title: "A wrong option: Not yet", from: "module-choice", shows: "You chose December", run: (t) => (t.v().tr.opts[0].pick(), t.v().check()) },
-  { name: "module-choice-correct", title: "The right option: Correct", from: "module-choice-wrong", shows: "You chose January", run: (t) => (t.v().tr.opts[1].pick(), t.v().check()) },
+  { name: "module-choice-wrong", title: "A wrong option: Not yet", from: "module-choice", shows: "You chose December", run: (t) => (t.v().tr.open(), t.v().tr.opts[0].pick()) },
+  { name: "module-choice-correct", title: "The right option: Correct", from: "module-choice-wrong", shows: "You chose January", run: (t) => t.v().tr.opts[1].pick() },
   { name: "module-long", title: "A task whose statement is three lines, with its picture", from: "module-choice-correct", shows: "How many dots are there in row 10", run: (t) => t.v().next() },
   // A short essay on the same sheet, lined, from Solve on its card: the topic on the tracing paper, feedback by the rubric, Done. A proposal to the author.
   { name: "essay-sheet", title: "A short essay on the sheet of a task from paper", from: "home", shows: "umbrella that can talk", run: (t) => t.v().mods[1].solve() },

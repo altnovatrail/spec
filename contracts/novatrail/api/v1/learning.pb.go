@@ -472,7 +472,16 @@ type AttemptStart struct {
 	// manifest and technique catalog.
 	PackageDigest string `protobuf:"bytes,3,opt,name=package_digest,json=packageDigest,proto3" json:"package_digest,omitempty"`
 	// The task segment, when the attempt is one of a lesson run; absent outside a lesson.
-	Segment       *SegmentPlace `protobuf:"bytes,4,opt,name=segment,proto3" json:"segment,omitempty"`
+	Segment *SegmentPlace `protobuf:"bytes,4,opt,name=segment,proto3" json:"segment,omitempty"`
+	// The options of the answer of a task of one answer slot, which `app` keeps behind "Answer
+	// options" on the tracing paper and whose tap is the answer, `TappedChoice`, judged by the
+	// program by the key: of a slot bound `choice`, or of a check `choice` with options, its
+	// options; else the key and the slot's trap values not equal to it, the first four by the
+	// module's order: the module writes every wrong value shown, and none is added. Each as the
+	// module writes it, of the instance on a template, in an order the
+	// attempt's seed shuffles, the same at every read. Empty for a task of more than one answer
+	// slot, a slot bound `sheet`, and a check that gives fewer than two.
+	AnswerOptions []string `protobuf:"bytes,5,rep,name=answer_options,json=answerOptions,proto3" json:"answer_options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -531,6 +540,13 @@ func (x *AttemptStart) GetPackageDigest() string {
 func (x *AttemptStart) GetSegment() *SegmentPlace {
 	if x != nil {
 		return x.Segment
+	}
+	return nil
+}
+
+func (x *AttemptStart) GetAnswerOptions() []string {
+	if x != nil {
+		return x.AnswerOptions
 	}
 	return nil
 }
@@ -1606,13 +1622,14 @@ const file_novatrail_api_v1_learning_proto_rawDesc = "" +
 	"\aattempt\x18\x01 \x01(\v2\x1e.novatrail.api.v1.AttemptStartR\aattempt\"L\n" +
 	"\fSegmentPlace\x12\"\n" +
 	"\rlesson_run_id\x18\x01 \x01(\tR\vlessonRunId\x12\x18\n" +
-	"\asegment\x18\x02 \x01(\x05R\asegment\"\xbe\x01\n" +
+	"\asegment\x18\x02 \x01(\x05R\asegment\"\xe5\x01\n" +
 	"\fAttemptStart\x12\x1d\n" +
 	"\n" +
 	"attempt_id\x18\x01 \x01(\tR\tattemptId\x12.\n" +
 	"\x04task\x18\x02 \x01(\v2\x1a.novatrail.api.v1.OpenViewR\x04task\x12%\n" +
 	"\x0epackage_digest\x18\x03 \x01(\tR\rpackageDigest\x128\n" +
-	"\asegment\x18\x04 \x01(\v2\x1e.novatrail.api.v1.SegmentPlaceR\asegment\"U\n" +
+	"\asegment\x18\x04 \x01(\v2\x1e.novatrail.api.v1.SegmentPlaceR\asegment\x12%\n" +
+	"\x0eanswer_options\x18\x05 \x03(\tR\ranswerOptions\"U\n" +
 	"\x15GetOpenAttemptRequest\x12\x1d\n" +
 	"\n" +
 	"profile_id\x18\x01 \x01(\tR\tprofileId\x12\x1d\n" +
