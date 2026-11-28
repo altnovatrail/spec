@@ -103,7 +103,7 @@ const (
 	TutorReply_TUTOR_REPLY_ESSAY_FEEDBACK TutorReply = 4
 	// The opening question of a task from paper, `GetOpeningWords`.
 	TutorReply_TUTOR_REPLY_OPENING TutorReply = 5
-	// The tutor's answer to the learner's question on a task from paper, `AskTutor`.
+	// The tutor's answer to the learner's question on a task, `AskTutor`.
 	TutorReply_TUTOR_REPLY_ANSWER TutorReply = 6
 )
 
@@ -1764,12 +1764,12 @@ func (x *GetOpeningWordsResponse) GetRepeated() bool {
 	return false
 }
 
-// A question of the learner's own about a task from paper.
+// A question of the learner's own about a task from paper or of a module.
 type AskTutorRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The profile whose attempt it is.
 	ProfileId string `protobuf:"bytes,1,opt,name=profile_id,json=profileId,proto3" json:"profile_id,omitempty"`
-	// The attempt, of a task from paper.
+	// The attempt, of a task from paper or of a module but an essay.
 	AttemptId string `protobuf:"bytes,2,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
 	// The idempotency key of this question: `app` makes one for it, and sends it again with every
 	// repeat of it.
@@ -1782,15 +1782,17 @@ type AskTutorRequest struct {
 	// turns, each at most 1000 code points.
 	Turns []*TutorTurn `protobuf:"bytes,5,rep,name=turns,proto3" json:"turns,omitempty"`
 	// The work as it stands, `paper` alone, as `GetOpeningWords` sends it: the Check reads it
-	// while the attempt keeps no Check, and else it is not read.
+	// while the attempt of a task from paper keeps no Check, and else it is not read; none on a task
+	// of a module.
 	Work *Work `protobuf:"bytes,6,opt,name=work,proto3" json:"work,omitempty"`
 	// The learner's own key and its provider: with a profile of its owner.
 	OwnKey *OwnKey `protobuf:"bytes,7,opt,name=own_key,json=ownKey,proto3" json:"own_key,omitempty"`
 	// The offset of the device's clock from UTC, in minutes: with a request on platform AI alone.
 	ClockOffsetMinutes *int32 `protobuf:"varint,8,opt,name=clock_offset_minutes,json=clockOffsetMinutes,proto3,oneof" json:"clock_offset_minutes,omitempty"`
-	// The language of the screens `app` shows the learner, a tag of BCP 47: the answer is written
-	// in it, and `app` voices it by it. Empty: the profile's `interface_language`, else English. A
-	// tag that is not well-formed gets the code `invalid_argument`.
+	// The language of the screens `app` shows the learner, a tag of BCP 47: on a task from paper
+	// the answer is written in it, and `app` voices it by it; on a task of a module the answer is in
+	// the module's language of explanations. Empty: the profile's `interface_language`, else
+	// English. A tag that is not well-formed gets the code `invalid_argument`.
 	WordsLanguage string `protobuf:"bytes,9,opt,name=words_language,json=wordsLanguage,proto3" json:"words_language,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

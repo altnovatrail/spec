@@ -3806,7 +3806,6 @@ class Component extends DCLogic {
     else if (!list.length && (this.isPip(st) || !this.lesNow(st))) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
       ? 'Hi, I’m Pip. Ask me ' + (st.micOn ? 'by voice or text' : 'anything') + ' — I’ll help you find the answer, not give it.'
       : this.isEssay(st) && st.surface === 'paper' ? 'Take a hint, or Check: the tutor gives feedback by the essay’s criteria, and never writes it for you.'
-      : this.isAdaptive(st) && st.surface === 'paper' ? 'Take a hint: the tutor answers with a question, never with the answer. A program checks every answer.'
       : 'Ask about this task by text or voice, or take a hint: the tutor answers with a question, never with the answer. A program checks every answer.' });
     return list.concat(add);
   }
@@ -3849,8 +3848,9 @@ class Component extends DCLogic {
       // The speaker in the head: the tutor's words aloud.
       voicing: true,
       // The field with Send, and the microphone: speech into the field. A child's microphone is the grown-up's switch. A task of a
-      // module on the sheet takes no question: its field stands only in grown-up mode.
-      field: !(st.surface === 'paper' && st.stage === 'solve' && this.isAdaptive(st)) || st.grown === c.key,
+      // module takes a question as a task from paper does; an essay on the sheet takes none: its field
+      // stands only in grown-up mode.
+      field: !(st.surface === 'paper' && st.stage === 'solve' && this.isEssay(st)) || st.grown === c.key,
       mic: !pip || st.micOn,
       // Both wait while today's tutor time is used up.
       off: out,
