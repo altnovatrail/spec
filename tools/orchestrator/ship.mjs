@@ -502,6 +502,20 @@ export function shipStateOf(raw, epic, clones) {
 
 const save = (file, state) => fs.writeFileSync(file, `${JSON.stringify(state, null, 1)}\n`);
 
+// A ship done moves aside, its state as .stand/ship-<n>.json and each text as pr-<repo>-ship-<n>.md,
+// n the next number free: the epic's next ship begins anew, and takes no text of this one.
+function setAside(dir, state) {
+  const stand = path.join(dir, STAND);
+  const used = fs.readdirSync(stand).map((f) => Number(/^ship-(\d+)(?=[.-])/.exec(f)?.[1] ?? 0));
+  const n = Math.max(0, ...used) + 1;
+  fs.renameSync(shipFile(dir), path.join(stand, `ship-${n}.json`));
+  for (const repo of state.order) {
+    const text = path.join(dir, `pr-${repo}.md`);
+    if (fs.existsSync(text)) fs.renameSync(text, path.join(dir, `pr-${repo}-ship-${n}.md`));
+  }
+  return `${STAND}/ship-${n}.json`;
+}
+
 // One node to its release: the pins of what it depends on and its gate again without the wiring,
 // its pull request, its checks, the merge, main and the release.
 async function shipOne(dir, epic, repo, state, deps) {
@@ -609,5 +623,5 @@ export async function ship(named, deps) {
     if (error instanceof Stop) return { epic, stopped: error.message, ...error.details, nodes: state.nodes };
     throw error;
   }
-  return { epic, shipped: true, nodes: state.nodes };
+  return { epic, shipped: true, nodes: state.nodes, record: setAside(dir, state) };
 }
