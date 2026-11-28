@@ -16,7 +16,6 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
 - **Как проверить:** `just legal-check`; `just docs-check`; `/code-review high`.
 - **Разделы:** privacy 4, 7; R124–R126, R133, R139, R141; Д156; T99, T111, T112.
 
-
 #### T240. Анализ по порогу R145: три повышения бюджетов за E11
 
 - **Цель:** понять, почему за E11 бюджеты `docs-check` повышали трижды, и вернуть их — или принять новые пределы с причиной.
@@ -73,15 +72,3 @@ Open tasks outside the current epic, each as its body, in Russian (R154, R155).
   - другие репозитории берут это переходом на тег; заглушки R `learner-model` (Д24 `learner-model`) — его задачей.
 - **Как проверить:** `just docs-check-test`, `just docs-check`; `docs-check-repo` на клонах `skill-map` и `learner-model`.
 - **Разделы:** `tools/docs-check/config.mjs`, `sections.mjs`; В17 `skill-map`, В59 `learner-model`.
-
-#### T349. `xrepo`: укладка пакета библиотеки не стирает его вложенные `node_modules`
-
-- **Цель:** когда стенд `xrepo` кладёт в потребителя пакет библиотеки из клона — `canvas` или `skill-map` в `app` —, вложенные пакеты, которые lock-файл потребителя держит под ним, остаются на месте, и гейт на стенде проходит так же, как CI без стенда.
-- **Почему:** в E26 `canvas` 0.3.48 стоял на `@altnovatrail/spec` 0.21.2, а `app` — на 0.21.8, и npm положил копию 0.21.2 внутрь пакета canvas: `node_modules/@altnovatrail/canvas/node_modules/@altnovatrail/spec`. `UNPACK` в `tools/orchestrator/xrepo.mjs` начинается с `rm -rf` папки пакета, и вложенная копия пропадала. Тест NOTICE в `app` (`scripts/notice.test.ts`) падал только на стенде: пакет, который lock-файл называет, не установлен. Обошёл руками: положил 0.21.2 из npm, сверив integrity с lock-файлом.
-- **Сделать:**
-  - `UNPACK` сохраняет `node_modules` внутри папки пакета: убирает её в сторону до распаковки и возвращает после, или распаковывает поверх, стирая всё, кроме неё — выбрать при работе;
-  - в архиве библиотеки своих `node_modules` нет, так что вернуть нужно только то, что положил npm потребителя;
-  - тест в мире `test/world.mjs`: у потребителя есть вложенный пакет под библиотекой, укладка его сохраняет, а файлы старой версии самой библиотеки уходят;
-  - абзац об укладке в разделе `xrepo` в `tools/orchestrator/README.md`.
-- **Как проверить:** `just orchestrator-test`; на клоне эпика, где версии spec у библиотеки и потребителя разные, `xrepo gate app` — тест NOTICE зелёный.
-- **Разделы:** `tools/orchestrator/xrepo.mjs` (`UNPACK`), `tools/orchestrator/README.md` — `xrepo`, стенд и гейт; `notes.md` эпика E26.

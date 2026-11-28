@@ -121,10 +121,13 @@ export const PACK_LIBRARY = [
   'echo "$print"',
 ].join("\n");
 
-// Unpacks the archive $2 as the package folder $1 and marks it with the fingerprint $3. It drops
-// the consumer's prebundle of Vite, node_modules/.vite/deps, too: a stand's dev server takes it
-// again at its start while the lock file is the same, and would serve the package it replaced.
-export const UNPACK = 'rm -rf "$1" && mkdir -p "$1" && tar -xzf "$2" --strip-components=1 -C "$1" && printf "%s\\n" "$3" > "$1/.xrepo" && rm -rf "${1%/@altnovatrail/*}/.vite/deps"';
+// Unpacks the archive $2 as the package folder $1 and marks it with the fingerprint $3. The
+// folder's own node_modules is set aside and put back: the archive holds none, and what is there
+// is what the consumer's npm nested under the package by its lock file — a version of spec the
+// library pins and the consumer does not —, which nothing would install again. It drops the
+// consumer's prebundle of Vite, node_modules/.vite/deps, too: a stand's dev server takes it again
+// at its start while the lock file is the same, and would serve the package it replaced.
+export const UNPACK = 'k="$1.xrepo-keep" && { [ ! -d "$1/node_modules" ] || { rm -rf "$k" && mv "$1/node_modules" "$k"; }; } && rm -rf "$1" && mkdir -p "$1" && tar -xzf "$2" --strip-components=1 -C "$1" && { [ ! -d "$k" ] || mv "$k" "$1/node_modules"; } && printf "%s\\n" "$3" > "$1/.xrepo" && rm -rf "${1%/@altnovatrail/*}/.vite/deps"';
 
 // Pulls the host's clone in its own container, only on a clean main.
 export const PULL = [
