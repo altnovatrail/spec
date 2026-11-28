@@ -309,6 +309,13 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 :where(.ph-home) .nt-mode[data-mode="tasks"] .nt-mode-eyebrow { color: #1d6b30; }
 :where(.ph-home) .nt-mode-title { font-size: 0.9375rem; font-weight: 600; }
 :where(.ph-home) .nt-mode-chev { flex: 0 0 auto; color: #6e6e73; font-size: 1.25rem; }
+/* The lesson's tile shut while the lessons are remade: grey, its row and Continue shut. */
+:where(.ph-home) .nt-mode[data-locked="true"] { background: rgb(245, 245, 247); }
+:where(.ph-home) .nt-mode[data-locked="true"] .nt-mode-sign { box-shadow: none; color: #6e6e73; }
+:where(.ph-home) .nt-mode[data-locked="true"] .nt-mode-eyebrow { color: #6e6e73; }
+:where(.ph-home) .nt-mode[data-locked="true"] .nt-mode-chev { visibility: hidden; }
+:where(.ph-home .ph-homemain) .nt-mode[data-locked="true"] button.nt-mode-row:hover { background: transparent; cursor: default; }
+:where(.ph-home .ph-homemain) .nt-mode[data-locked="true"] .nt-mode-foot > button.nt-mode-go { background: rgb(229, 229, 234); color: #6e6e73; cursor: default; }
 :where(.ph-home) .nt-modes > .nt-mode:only-child { grid-column: 1 / -1; }
 :where(.ph-home) .nt-mode-foot { display: flex; align-items: center; gap: 0.75rem; margin-block-start: auto; }
 :where(.ph-home) .nt-mode-note { display: flex; flex: 1 1 auto; flex-direction: column; align-items: flex-start; gap: 0.375rem; min-inline-size: 0px; color: #6e6e73; font-size: 0.75rem; }
@@ -436,6 +443,11 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-tbar .ph-tmode.busy{background:#E5F0FF;color:#0058B8;cursor:default}
 .ph-tbar .ph-tmode.back{background:#F2F2F7;color:#1D1D1F}
 .ph-tprose{position:absolute;inset:0;box-sizing:border-box;line-height:1.4;color:#1D1D1F;text-align:left;white-space:normal;pointer-events:none}
+/* A task of a module on the tracing paper: the module's picture under its statement, and a choice's options as buttons, which the program checks by the key. */
+.ph-tpic{position:absolute;overflow:visible;pointer-events:none}
+.ph-topts{position:absolute;left:0;right:0;box-sizing:border-box;display:flex;flex-wrap:wrap;pointer-events:auto}
+.ph-topt{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#FFFFFF;box-shadow:inset 0 0 0 1px rgba(60,60,67,0.30);color:#1D1D1F;font-weight:500;white-space:nowrap;transition:background .15s,box-shadow .15s}
+.ph-topt[aria-checked="true"]{background:#0071E3;box-shadow:none;color:#FFFFFF;font-weight:600}
 .ph-tstate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;color:#1D1D1F;pointer-events:none}
 .ph-tread{display:inline-flex;align-items:center;white-space:pre}.ph-frac{display:inline-flex;flex-direction:column;align-items:center;margin:0 .1em;line-height:1.1}.ph-num{padding:0 .12em .04em;border-bottom:.06em solid currentColor}.ph-it{font-style:italic}
 .ph-tscan{position:absolute;inset:0;overflow:hidden;background:rgba(0,113,227,.04);pointer-events:none}
@@ -718,8 +730,10 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </div>
       <sc-if value="{{tr.text}}" hint-placeholder-val="{{ false }}"><div class="ph-tstate" style="font-size: {{tr.fs}}px"><span class="ph-tread"><sc-for list="{{tr.pieces}}" as="q" hint-placeholder-count="1"><sc-if value="{{q.flat}}" hint-placeholder-val="{{ true }}"><sc-for list="{{q.runs}}" as="r" hint-placeholder-count="1"><span class="{{r.cls}}">{{r.s}}</span></sc-for></sc-if><sc-if value="{{q.frac}}" hint-placeholder-val="{{ false }}"><span class="ph-frac"><span class="ph-num"><sc-for list="{{q.num}}" as="n" hint-placeholder-count="1"><span class="{{n.cls}}">{{n.s}}</span></sc-for></span><span><sc-for list="{{q.den}}" as="d" hint-placeholder-count="1"><span class="{{d.cls}}">{{d.s}}</span></sc-for></span></span></sc-if></sc-for></span></div></sc-if>
       <sc-if value="{{tr.prose}}" hint-placeholder-val="{{ false }}"><div class="ph-tprose" style="font-size: {{tr.pfs}}px; padding: {{tr.ppad}}">{{tr.proseText}}</div></sc-if>
+      <sc-if value="{{tr.pic}}" hint-placeholder-val="{{ false }}"><svg class="ph-tpic" role="img" aria-label="{{tr.picLabel}}" width="{{tr.picW}}" height="{{tr.picH}}" viewBox="{{tr.picVb}}" style="left: {{tr.picX}}px; top: {{tr.picY}}px"><sc-for list="{{tr.picLines}}" as="l" hint-placeholder-count="0"><line x1="{{l.x1}}" y1="{{l.y1}}" x2="{{l.x2}}" y2="{{l.y2}}" style="stroke: #C8A27A; stroke-width: 2.2px; stroke-linecap: round"></line><circle cx="{{l.x2}}" cy="{{l.y2}}" r="1.9" style="fill: #C0392B"></circle></sc-for><sc-for list="{{tr.picDots}}" as="d" hint-placeholder-count="0"><circle cx="{{d.x}}" cy="{{d.y}}" r="2.6" style="fill: #1D1D1F"></circle></sc-for></svg></sc-if>
       <sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><div class="ph-tscan"><i></i></div></sc-if>
       <div data-w="{{clip.w}}" data-layer="clip" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" style="position: absolute; inset: 0; touch-action: none"></div>
+      <sc-if value="{{tr.choice}}" hint-placeholder-val="{{ false }}"><div class="ph-topts" role="radiogroup" aria-label="Answers" style="top: {{tr.optsY}}px; gap: {{tr.optsGap}}px; padding: 0 {{tr.optsPad}}px; font-size: {{tr.optsFs}}px"><sc-for list="{{tr.opts}}" as="o" hint-placeholder-count="0"><button class="ph-topt" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: {{tr.optsH}}px; padding: 0 {{tr.optsPx}}px">{{o.s}}</button></sc-for></div></sc-if>
       <sc-for list="{{clipPaths}}" as="p" hint-placeholder-count="0">
         <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" transform="{{p.tf}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
       </sc-for>
@@ -881,6 +895,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
   <sc-if value="{{showRightBar}}" hint-placeholder-val="{{ false }}">
   <div class="glass" style="position: absolute; right: 16px; top: 14px; height: 48px; border-radius: 24px; padding: 2px; box-sizing: border-box; display: flex; align-items: center; gap: 2px">
     <sc-if value="{{isSolve}}" hint-placeholder-val="{{ false }}">
+      <!-- A module whose tasks the engine picks one at a time: the skill they train in place of a counter, opening the same choice as its tile on Home. -->
+      <sc-if value="{{skill.on}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{skill.toggle}}" aria-haspopup="dialog" aria-expanded="{{skill.openStr}}" aria-label="{{skill.aria}}" style="height: 44px; max-width: {{skill.maxW}}px; padding: 0 12px 0 8px; border-radius: 22px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; background: {{skill.bg}}; transition: background 0.15s">
+        <span aria-hidden="true" style="flex: none; width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: {{skill.signBg}}; color: {{skill.signFg}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M11 3l1.8 4.7 4.7 1.8-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8z"></path><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg></span>
+        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{skill.name}}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M6 9l6 6 6-6"></path></svg>
+      </button>
+      </sc-if>
+      <sc-if value="{{countOn}}" hint-placeholder-val="{{ true }}">
       <button class="ib tip tip-b" aria-label="Previous task" data-tip="Previous task" onClick="{{prevTask}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
       </button>
@@ -891,6 +914,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <button class="ib tip tip-bl" aria-label="Next task" data-tip="Next task" onClick="{{nextTask}}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
       </button>
+      </sc-if>
       <!-- On the phone «…» of the kinds of other authors stands here, under "Later". -->
       <sc-if value="{{showKinds}}" hint-placeholder-val="{{ false }}">
       <div class="ph-only" style="width: 1px; height: 22px; background: rgba(0,0,0,0.1); margin: 0 2px"></div>
@@ -919,6 +943,33 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
     </button>
     </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{skill.open}}" hint-placeholder-val="{{ false }}">
+  <button class="ph-scrim" aria-label="Close" onClick="{{skill.toggle}}" style="position: absolute; inset: 0; z-index: 5; cursor: default"></button>
+  <div class="ph-home" style="position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 6">
+    <div class="nt-pop nt-pick" role="dialog" aria-label="Which tasks to solve?" style="position: {{skill.pos}}; box-sizing: border-box; background: rgba(255,255,255,0.98); {{skill.P}}">
+      <button class="nt-pick-close" onClick="{{skill.toggle}}" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <h2 class="nt-pick-title">Which tasks to solve?</h2>
+      <button class="nt-pick-ai" onClick="{{skill.m.reset}}" aria-pressed="{{skill.m.aiStr}}">
+        <span class="nt-mode-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M11 3l1.8 4.7 4.7 1.8-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8z"></path><path d="M18.5 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"></path></svg></span>
+        <span class="nt-mode-words"><span class="nt-mode-title">The tutor chooses</span><span class="nt-pick-or">The skill, as the work goes, by your progress</span></span>
+        <sc-if value="{{skill.m.ai}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e7e34" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+      </button>
+      <span class="nt-pick-or">Or a skill of your own: the tasks will be on it alone</span>
+      <div class="nt-pick-group">
+        <span class="nt-pick-label">Suggested</span>
+        <div class="nt-pick-chips"><sc-for list="{{skill.m.rec}}" as="c" hint-placeholder-count="3"><button class="nt-pick-chip" onClick="{{c.pick}}" aria-pressed="{{c.on}}">{{c.name}}</button></sc-for></div>
+      </div>
+      <div class="nt-pick-rule" aria-hidden="true"></div>
+      <sc-for list="{{skill.m.groups}}" as="g" hint-placeholder-count="4">
+      <div class="nt-pick-group">
+        <span class="nt-pick-label">{{g.name}}</span>
+        <div class="nt-pick-chips"><sc-for list="{{g.chips}}" as="c" hint-placeholder-count="6"><button class="nt-pick-chip" onClick="{{c.pick}}" disabled="{{c.locked}}" aria-pressed="{{c.on}}" aria-label="{{c.aria}}">{{c.name}}<sc-if value="{{c.locked}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.locked}}"></path></svg></sc-if></button></sc-for></div>
+      </div>
+      </sc-for>
+    </div>
   </div>
   </sc-if>
 
@@ -2363,18 +2414,18 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
                 </div>
               </div>
               <div class="nt-dots" role="img" aria-label="{{m.aria}}"><sc-for list="{{m.dots}}" as="d" hint-placeholder-count="20"><i data-state="{{d.st}}"></i></sc-for></div>
-              <!-- The module's two ways in. Its lesson: the row leads to the page of the module's lessons — lessons may run side by side, so no number of them —, and under it the steps of this one and Continue. Its tasks: the row opens which skill they train — the tutor's choice, or one skill of the learner's own, the tasks on it alone —, and Solve. A module of tasks alone has the second. -->
+              <!-- The module's two ways in, the lesson's shut while the lessons are remade. Its lesson: the row leads to the page of the module's lessons — lessons may run side by side, so no number of them —, and under it the steps of this one and Continue. Its tasks: the row opens which skill they train — the tutor's choice, or one skill of the learner's own, the tasks on it alone —, and Solve. A module of tasks alone has the second. -->
               <div class="nt-modes">
                 <sc-if value="{{m.hasLesson}}" hint-placeholder-val="{{ true }}">
-                <section class="nt-mode" data-mode="lesson" aria-label="Lesson">
-                  <button class="nt-mode-row" onClick="{{m.lessons}}" aria-label="{{m.lessonsAria}}">
+                <section class="nt-mode" data-mode="lesson" data-locked="{{m.lessonOffStr}}" aria-label="Lesson">
+                  <button class="nt-mode-row" onClick="{{m.lessons}}" disabled="{{m.lessonOff}}" aria-label="{{m.lessonsAria}}">
                     <span class="nt-mode-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5c2.6-1 5.4-1 8 .6 2.6-1.6 5.4-1.6 8-.6V19c-2.6-1-5.4-1-8 .6-2.6-1.6-5.4-1.6-8-.6z"></path><path d="M12 6.1v13.5"></path></svg></span>
-                    <span class="nt-mode-words"><span class="nt-mode-eyebrow">Lesson</span><span class="nt-mode-title">{{m.lesson}}</span></span>
+                    <span class="nt-mode-words"><span class="nt-mode-eyebrow">{{m.lessonEyebrow}}</span><span class="nt-mode-title">{{m.lesson}}</span></span>
                     <span class="nt-mode-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></span>
                   </button>
                   <div class="nt-mode-foot">
-                    <div class="nt-mode-note"><span class="nt-mode-bar" aria-hidden="true"><i style="inline-size: {{m.lessonPct}}"></i></span>{{m.lessonStep}}</div>
-                    <button class="nt-mode-go" onClick="{{m.open}}" aria-label="{{m.openAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Continue</button>
+                    <div class="nt-mode-note"><sc-if value="{{m.lessonOn}}" hint-placeholder-val="{{ true }}"><span class="nt-mode-bar" aria-hidden="true"><i style="inline-size: {{m.lessonPct}}"></i></span></sc-if>{{m.lessonStep}}</div>
+                    <button class="nt-mode-go" onClick="{{m.open}}" disabled="{{m.lessonOff}}" aria-label="{{m.openAria}}"><span class="nt-go-sign" aria-hidden="true"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="{{hs.ai.play}}"></path></svg></span>Continue</button>
                   </div>
                 </section>
                 </sc-if>
@@ -3066,6 +3117,23 @@ const SH = [
   { id: 5, label: 'Houses in a row', text: 'Houses stand in a row. The house with the flag is the fourth from the left and the sixth from the right. How many houses are in the row?', ans: '9', wrong: '10',
     hint: 'Is the house with the flag counted twice?', alt: 'Draw it: 3 houses left of the flag, 5 right of it. How many in all?' }
 ].map((t) => ({ ...t, x: 0, y: 0, w: 272, ch: Math.round(18 + Math.ceil(t.text.length / 40) * 18.2) }));
+// The olympiad module solved on the same sheet: one task at a time, as the engine picks it within the task skill — the tutor's
+// choice or the learner's own —, its statement the module's text on the tracing paper, the module's picture under it, and a
+// choice's options as buttons on it, which the program checks by the key. A proposal to the author. A picture is in the
+// page's units, 96 wide; an option's chip is 28 high, 6 apart, as wide as its word.
+const OLY = 'Olympiad maths 1–6';
+const optRows = (opts) => { let rows = 1, x = 0; for (const o of opts) { const w = 20 + o.length * 6.9; if (x && x + 6 + w > 256) { rows++; x = w; } else x += (x ? 6 : 0) + w; } return rows; };
+const OM = [
+  { id: 1, label: 'Matches in squares', skill: 'Matchstick puzzles', text: 'Each line in the picture is a match. How many matches are in the picture?', pic: 'matches', ans: '10', wrong: '12',
+    hint: 'Count the matches of the first square. How many new ones does each next square need?', alt: 'The squares share their sides. Count the matches standing up, then those lying down.' },
+  { id: 2, label: 'Two months on', skill: 'Calendar and age', text: 'It is November now. Which month will it be in 2 months?', ans: 'January', wrong: 'December',
+    options: ['December', 'January', 'February', 'September', 'November'], key: 'January',
+    traps: { December: 'December is only 1 month after November.', February: 'February is too far: count the months from November again.',
+      September: 'September was 2 months ago. The question asks about later.', November: 'November is the month now, not the month in 2 months.' },
+    hint: 'Name the months that come after November, one at a time.', alt: 'Count on from November: one month, then two. Which month is it?' },
+  { id: 3, label: 'Dots in rows', skill: 'Number patterns', text: 'Row 1 has 2 dots, row 2 has 5 dots, and row 3 has 8 dots: each row has 3 more dots than the row before. How many dots are there in row 10?', pic: 'dots', ans: '29', wrong: '32',
+    hint: 'How many steps of 3 are there from row 1 to row 10?', alt: 'Write the rows and their dots in two lines, and look at how they change.' }
+].map((t) => ({ ...t, x: 0, y: 0, w: 272, ch: Math.round(18 + Math.ceil(t.text.length / 40) * 18.2 + (t.pic ? 34 : 0) + (t.options ? optRows(t.options) * 34 + 2 : 0)) }));
 // The icons of app's shell and Home: app's own set, Material Symbols Rounded (Apache-2.0), as src/app/icons.ts of app has them.
 const AI = {
   home: 'M5 11q-.825 0-1.412-.587T3 9V5q0-.825.588-1.412T5 3h4q.825 0 1.413.588T11 5v4q0 .825-.587 1.413T9 11zm0 10q-.825 0-1.412-.587T3 19v-4q0-.825.588-1.412T5 13h4q.825 0 1.413.588T11 15v4q0 .825-.587 1.413T9 21zm10-10q-.825 0-1.412-.587T13 9V5q0-.825.588-1.412T15 3h4q.825 0 1.413.588T21 5v4q0 .825-.587 1.413T19 11zm0 10q-.825 0-1.412-.587T13 19v-4q0-.825.588-1.412T15 13h4q.825 0 1.413.588T21 15v4q0 .825-.587 1.413T19 21z',
@@ -4162,8 +4230,10 @@ class Component extends DCLogic {
     this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured: 'worksheet', frames: { worksheet: [] }, selected: [1, 2, 4], current: 1,
       grownOpen: false, bellOpen: false, modsOpen: false, strokes: { [k]: [st] }, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, view: { z: 1, x: 0, y: 0 } });
   };
-  // A card of the check board on home: its tasks as the picked tasks of a page, on the same sheet.
-  openBoard = () => this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured: 'sheet', frames: { sheet: [] }, selected: SH.map((t) => t.id), current: 1,
+  // A module solved on the sheet, from its card on home: the check board, its tasks as the picked tasks of a page, and the olympiad module, a task at a time.
+  openBoard = () => this.openSheet('sheet');
+  openModule = () => this.openSheet('module');
+  openSheet = (captured) => this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured, frames: { [captured]: [] }, selected: this.pageTasks(captured).map((t) => t.id), current: 1, chosen: {}, skillOpen: false,
     grownOpen: false, bellOpen: false, modsOpen: false, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false,
     view: { z: 1, x: 0, y: 0 }, tSel: false, tMode: 'orig', tScale: 1, clipPos: null });
   openLesson(name) {
@@ -4340,8 +4410,10 @@ class Component extends DCLogic {
   // A page with no task still draws the values of the solving screen it hides: they take the page's first task.
   task(st) { st = st || this.state; const ts = this.tasks(st); return ts.find((t) => t.id === st.current) || ts[0] || this.pageTasks(st.captured)[0]; }
   // The tasks of a source: a photographed page, or the check board, whose tasks come from the module.
-  pageTasks(d) { return d === 'sheet' ? SH : d === 'olympiad' ? OL : WS; }
-  isBoard(st) { st = st || this.state; return st.captured === 'sheet'; }
+  pageTasks(d) { return d === 'sheet' ? SH : d === 'module' ? OM : d === 'olympiad' ? OL : WS; }
+  // A module solved on the sheet: the check board, or the olympiad module, whose tasks the engine picks one at a time.
+  isBoard(st) { st = st || this.state; return st.captured === 'sheet' || st.captured === 'module'; }
+  isAdaptive(st) { st = st || this.state; return st.captured === 'module'; }
   tname(t, st) { st = st || this.state; return t.manual ? 'Your frame ' + (this.framesOf(st).findIndex((f) => f.id === t.id) + 1) : this.isBoard(st) ? 'Task ' + t.id : st.captured === 'olympiad' ? 'Problem ' + t.id : 'Equation (' + t.id + ')'; }
   tkey(id) { return this.state.captured + '-' + id; }
   // A task from paper is over once it is correct or has no key: its solution is never shown.
@@ -4524,6 +4596,7 @@ class Component extends DCLogic {
       pct: Math.round(sc * 100) + '%', shows: mod ? 'module' : busy ? 'busy' : text ? 'text' : 'photo', busy, still: !busy, text, photoVis: text || mod ? 'hidden' : 'visible',
       signWords: mod ? 'Task of the module' : busy ? 'Recognising…' : text ? 'Recognised by AI' : 'Photo of the task', signIcon: mod ? BOOK : text ? SPARK : PHOTO,
       prose: mod, proseText: t.text || '', pfs: Math.round(13 * k * 10) / 10, ppad: Math.round(9 * k) + 'px ' + Math.round(8 * k) + 'px', modeOn: !mod,
+      ...this.tracingMore(t, k, mod),
       modeCls: busy ? 'busy' : text ? 'back' : '', modeWords: busy ? 'Recognising…' : text ? 'Original' : 'Recognise', modeIcon: text ? PHOTO : SPARK,
       ...this.readPieces(t.tex || t.label, w, h),
       smaller: () => zoom(sc / 1.2), larger: () => zoom(sc * 1.2), reset: () => zoom(1),
@@ -4539,6 +4612,30 @@ class Component extends DCLogic {
         clearTimeout(this.tRead); this.tRead = setTimeout(() => this.setState({ tMode: 'text' }), 1400);
       },
     };
+  }
+
+  // What a module's task adds to its tracing paper under the statement, in the page's units: its picture, and a choice's options.
+  tracingMore(t, k, mod) {
+    const s = this.state, y0 = 9 + Math.ceil((t.text || '').length / 40) * 18.2 + 2, r = (n) => Math.round(n * k * 10) / 10;
+    const out = { pic: mod && !!t.pic, choice: mod && !!t.options, picLines: [], picDots: [], opts: [] };
+    if (out.pic) {
+      Object.assign(out, { picX: r(8), picY: r(y0), picW: r(96), picH: r(30), picVb: '0 0 96 30' });
+      if (t.pic === 'matches') {
+        // Three squares in a row, which share their sides: ten matches, each a stick with its head.
+        const H = [8, 32, 56], V = [8, 32, 56, 80], line = (x1, y1, x2, y2) => ({ x1, y1, x2, y2 });
+        out.picLines = H.flatMap((x) => [line(x + 4, 3, x + 20, 3), line(x + 4, 27, x + 20, 27)]).concat(V.map((x) => line(x, 7, x, 23)));
+        out.picLabel = 'Three squares in a row, made of matches';
+      } else {
+        out.picDots = [2, 5, 8].flatMap((n, row) => Array.from({ length: n }, (_, i) => ({ x: 8 + i * 9.5, y: 5 + row * 10 })));
+        out.picLabel = 'Three rows of dots: 2, 5 and 8';
+      }
+    }
+    if (out.choice) {
+      const key = this.tkey(t.id), now = (s.chosen || {})[key];
+      Object.assign(out, { optsY: r(y0 + 2), optsGap: r(6), optsPad: r(8), optsFs: r(12.5), optsH: r(28), optsPx: r(10),
+        opts: t.options.map((o) => ({ s: o, on: String(o === now), pick: () => this.setState({ chosen: { ...(this.state.chosen || {}), [key]: o }, verdict: null }) })) });
+    }
+    return out;
   }
 
   // The statement read as canvas draws it (R89 canvas): a \frac of LaTeX built up, its bar between its two lines, a letter in italics, as MathML has them.
@@ -4933,6 +5030,7 @@ class Component extends DCLogic {
   // and the second "Correct". A circled option is read like handwriting, from the crop with the strokes on it (R68).
   check = () => {
     const s = this.state, t = this.task(), k = this.tkey(t.id), ol = s.captured === 'olympiad' && !t.manual;
+    if (this.isAdaptive(s) && t.options) return this.checkChoice(t, k);
     if (!this.hasInk(t)) {
       const v = ol ? { kind: 'info', title: 'Circle an answer first', line: 'Circle one option on the task with the pen, then Check.' } : { kind: 'info', title: 'Write your solution first', line: 'Write it here with the pen, then Check.' };
       return this.settle(v, '', null, v.line, k);
@@ -4984,6 +5082,22 @@ class Component extends DCLogic {
     }, 1300);
   };
 
+  // A choice of a module's task: the option tapped on the tracing paper, which the program checks by the key — no model reads it.
+  checkChoice(t, k) {
+    const got = (this.state.chosen || {})[k];
+    if (!got) {
+      const v = { kind: 'info', title: 'Choose an answer first', line: 'Tap one of the answers on the task, then Check.' };
+      return this.settle(v, '', null, v.line, k);
+    }
+    const brief = 'You chose ' + got;
+    if (got === t.key) {
+      this.settle({ kind: 'ok', title: 'Correct', line: brief }, brief, { status: { ...this.state.status, [k]: 'done' } }, null, k);
+      return this.aiSay('That’s it — well done. What helped you most here?');
+    }
+    this.settle({ kind: 'no', title: 'Not yet', line: brief }, brief, { status: { ...this.state.status, [k]: 'wrong' } }, null, k);
+    this.aiSay(t.traps[got] || t.hint, { kind: 'hint', label: 'Hint' });
+  }
+
   strokesOf(t) { const s = this.state; return (s.strokes[this.tkey(t.id)] || []).length + (s.strokes[this.clipKey()] || []).length; }
 
   // The latest stroke of the work, on the sheet or on the tracing paper, and how many strokes there are: the mark goes once the work changes.
@@ -5005,6 +5119,11 @@ class Component extends DCLogic {
 
   next = () => {
     const s = this.state;
+    // The engine picks the next task within the task skill; the demo takes the module's next one.
+    if (this.isAdaptive(s)) {
+      const ids = OM.map((t) => t.id), n = ids[(ids.indexOf(s.current) + 1) % ids.length], nk = this.tkey(n);
+      return this.setState({ current: n, verdict: null, cardOpen: true, clipPos: null, tSel: false, status: { ...s.status, [nk]: undefined }, ptries: { ...s.ptries, [nk]: 0 }, chosen: { ...s.chosen, [nk]: undefined } });
+    }
     const sel = s.selected.slice().sort((a, b) => a - b);
     const i = sel.indexOf(s.current);
     const order = sel.slice(i + 1).concat(sel.slice(0, i + 1));
@@ -5148,6 +5267,20 @@ class Component extends DCLogic {
             dash: (at / steps * 94.2).toFixed(1) + ' 100', aria: title + ', ' + sub + (title === next ? ', next' : ''), open: () => this.openLesson(mod.name) };
         }) }))
     };
+  }
+
+  // The skill pill of a task of the olympiad module on the sheet: the task skill, or the tutor's choice, and the choice of Home's tile.
+  skillVals(s, PH, isSolve) {
+    const on = isSolve && this.isAdaptive(s), own = (s.taskSkill || {})[OLY] || '', open = on && !!s.skillOpen;
+    const POP = 'border-radius: 20px; padding: 18px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
+    return { on, open, openStr: String(open), name: own || 'The tutor picks', maxW: PH ? 200 : 280,
+      aria: own ? 'Tasks on ' + own + ': choose which tasks to solve' : 'The tutor picks the skill: choose which tasks to solve',
+      bg: open ? 'rgba(30,126,52,0.16)' : 'rgba(30,126,52,0.08)', signBg: own ? '#1E7E34' : '#FFFFFF', signFg: own ? '#FFFFFF' : '#1E7E34',
+      toggle: () => this.setState({ skillOpen: !this.state.skillOpen, tasksOpen: false, more: false }),
+      pos: PH ? 'fixed' : 'absolute',
+      P: PH ? 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)'
+        : 'left: ' + (this.dims().W - 16 - 400) + 'px; top: 70px; width: 400px; transform-origin: top right; ' + POP,
+      m: on ? this.modVals(s, MODS[0]) : {} };
   }
 
   homeVals(s, PH, pip, later) {
@@ -5544,7 +5677,7 @@ class Component extends DCLogic {
       text: findingPage ? 'Finding the tasks on the page…' : nFound + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') };
     if (isPick) { title = 'Your page'; subtitle = ''; }
     // The counter at the right says which task of the page it is: no line of it under the name.
-    if (isSolve) { title = this.isBoard(s) ? BOARD_MOD.name + ' · ' + this.tname(t) : this.tname(t); subtitle = ''; }
+    if (isSolve) { title = this.isBoard(s) ? (this.isAdaptive(s) ? OLY : BOARD_MOD.name) + ' · ' + this.tname(t) : this.tname(t); subtitle = ''; }
 
     const doneN = sel.filter((id) => this.over(id)).length;
     const bands = isPick ? this.pickBands(s) : [];
@@ -5668,7 +5801,7 @@ class Component extends DCLogic {
       isCamera, isPick, isSolve, isOl, showPagePane, showScreenInk,
 
       showChrome: !isCamera, showTools: L ? isTask : !isPaper || isSolve,
-      showKinds: isSolve && later, showRightBar: (isSolve || isPick || isExt) && !L,
+      showKinds: isSolve && later, showRightBar: (isSolve || isPick || isExt) && !L, countOn: isSolve && !this.isAdaptive(s), skill: this.skillVals(s, PH, isSolve),
       devCls: PH ? 'nt-phone' : 'nt-pad', stage: this.desk() ? { x: (dim.W - 1194) / 2, y: (dim.VH - 834) / 2, w: 1194, h: 834, head: 24 - (dim.VH - 834) / 2, langTop: 76 - (dim.VH - 834) / 2 } : { x: 0, y: 0, w: dim.W, h: dim.VH, head: 24, langTop: 76 }, dim, nl, devName: this.devName(), scrollTab: PH ? '0' : '-1',
       pillCls: isSolve || PH && isPick ? 'ph-backonly' : '', pickMid, pickClear: isPick && !findingPage && nFound + frs.length > 0, barCls: PH && s.chatOpen ? 'nt-hide' : '', railCls: PH && s.chatOpen ? 'nt-hide' : '',
       // With the tutor's panel open on the iPad the line keeps to the width of the page, clear of the panel.
@@ -5854,36 +5987,40 @@ class Component extends DCLogic {
       openCamera: this.openCamera, openFile: this.openFile,
       hs: this.homeVals(s, PH, pip, later), st: this.settingsVals(s, PH, later), isSubjects: s.screen === 'subjects',
       // A card's two ways in: its lesson, and its tasks with the skill they train — the tutor's choice, or one the learner chose, kept for the module.
-      mods: MODS.concat(s.boardOn ? [BOARD_MOD] : []).map((m) => {
-        const L = LESSONS[m.name], at = LESSON_AT[m.name] || 1, own = (s.taskSkill || {})[m.name] || '', pickOn = s.tasksPick === m.name;
-        const firstTask = L ? L.segs.findIndex((g) => g.k === 'task') : -1;
-        const choose = (name) => this.setState({ tasksPick: null, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: name } });
-        const skills = MAPS[m.name] ? MAPS[m.name].skills : BOARD_MOD.skills.map((name) => ({ t: 0, name, st: 'ready' }));
-        const tiers = MAPS[m.name] ? MAPS[m.name].tiers : ['Tier 1'];
-        const chip = (k) => ({ name: k.name, locked: k.st === 'locked', on: String(k.name === own), pick: () => choose(k.name),
-          aria: k.st === 'locked' ? k.name + ', locked until the skills it builds on' : k.name });
-        const rec = ['review', 'progress', 'ready', 'rubric'].flatMap((st) => skills.filter((k) => k.st === st)).slice(0, 3);
-        const go = { open: m.sheet ? this.openBoard : () => this.openLesson(m.name), openAria: 'Continue the lesson ' + (L ? L.title : ''), mapAria: 'Skill map of ' + m.name,
-          map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false, tasksPick: null }),
-          hasLesson: !!L && !m.sheet, lesson: L ? L.title : '', lessonsAria: (L ? L.title : '') + ': every lesson of ' + m.name,
-          lessons: () => this.setState({ screen: 'lessons', lessonsMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false, tasksPick: null }),
-          lessonStep: L ? 'Step ' + at + ' of ' + L.segs.length + ' · in the author’s order' : '', lessonPct: L ? Math.round(at / L.segs.length * 100) + '%' : '0%',
-          own: !!own, ownStr: String(!!own), ai: !own, aiStr: String(!own), pickOn, pickStr: String(pickOn),
-          tasksEyebrow: own ? 'Tasks · your skill' : 'Tasks', tasksTitle: own || 'The tutor picks the skill',
-          tasksSub: own ? 'Tasks on this skill alone' : 'As the work goes, by your progress',
-          pickAria: own ? 'Tasks on ' + own + ': choose which tasks to solve' : 'Tasks, the tutor picks the skill: choose which tasks to solve',
-          pickOpen: () => this.setState({ tasksPick: pickOn ? null : m.name, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, bellOpen: false, quotaOpen: false }),
-          reset: () => this.setState({ tasksPick: null, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: '' } }),
-          solve: m.sheet ? this.openBoard : () => (this.openLesson(m.name), firstTask >= 0 && this.goSeg(firstTask)), solveAria: 'Solve the tasks of ' + m.name,
-          rec: rec.map(chip), groups: tiers.map((name, t) => ({ name, chips: skills.filter((k) => k.t === t).map(chip) })).filter((g) => g.chips.length) };
-        const look = { name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, letter: m.name[0], tone: m.tone };
-        if (m.mark) return { ...go, ...look, kind: 'rubric', kindName: 'Feedback by criteria', adaptive: false, done: m.mark + ' skills, each with a rubric',
-          aria: 'All the skills: Feedback by criteria: ' + m.mark, dots: Array.from({ length: m.mark }, () => ({ st: 'feedback-by-criteria' })) };
-        const all = m.sk.reduce((a, b) => a + b, 0), st = ['mastered', 'time-to-review', 'in-progress', 'ready-to-start', 'locked'];
-        return { ...go, ...look, kind: 'adaptive', kindName: 'Adaptive', adaptive: true, done: m.sk[0] + ' of ' + all + ' mastered',
-          aria: 'All the skills: ' + STATES.map((x, i) => x[1] + ': ' + m.sk[i]).join(', '), dots: m.sk.flatMap((n, i) => Array.from({ length: n }, () => ({ st: st[i] }))) };
-      })
+      mods: MODS.concat(s.boardOn ? [BOARD_MOD] : []).map((m) => this.modVals(s, m))
     };
+  }
+
+  // A card's two ways in: its lesson, shut while the lessons are remade, and its tasks with the skill they train — the tutor's choice, or one
+  // the learner chose, kept for the module. The skill pill of a task of the module opens the same choice.
+  modVals(s, m) {
+      const L = LESSONS[m.name], at = LESSON_AT[m.name] || 1, own = (s.taskSkill || {})[m.name] || '', pickOn = s.tasksPick === m.name;
+      const firstTask = L ? L.segs.findIndex((g) => g.k === 'task') : -1;
+      const choose = (name) => this.setState({ tasksPick: null, skillOpen: false, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: name } });
+      const skills = MAPS[m.name] ? MAPS[m.name].skills : BOARD_MOD.skills.map((name) => ({ t: 0, name, st: 'ready' }));
+      const tiers = MAPS[m.name] ? MAPS[m.name].tiers : ['Tier 1'];
+      const chip = (k) => ({ name: k.name, locked: k.st === 'locked', on: String(k.name === own), pick: () => choose(k.name),
+        aria: k.st === 'locked' ? k.name + ', locked until the skills it builds on' : k.name });
+      const rec = ['review', 'progress', 'ready', 'rubric'].flatMap((st) => skills.filter((k) => k.st === st)).slice(0, 3);
+      const go = { open: m.sheet ? this.openBoard : () => this.openLesson(m.name), openAria: 'Continue the lesson ' + (L ? L.title : ''), mapAria: 'Skill map of ' + m.name,
+        map: () => this.setState({ screen: 'map', mapMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false, tasksPick: null }),
+        hasLesson: !!L && !m.sheet, lesson: L ? L.title : '', lessonOff: true, lessonOffStr: 'true', lessonOn: false, lessonEyebrow: 'Lesson · Soon', lessonsAria: (L ? L.title : '') + ': every lesson of ' + m.name,
+        lessons: () => this.setState({ screen: 'lessons', lessonsMod: m.name, helpOpen: false, switchOpen: false, legendOpen: false, tasksPick: null }),
+        lessonStep: 'The lessons are being remade', lessonWas: L ? 'Step ' + at + ' of ' + L.segs.length + ' · in the author’s order' : '', lessonPct: L ? Math.round(at / L.segs.length * 100) + '%' : '0%',
+        own: !!own, ownStr: String(!!own), ai: !own, aiStr: String(!own), pickOn, pickStr: String(pickOn),
+        tasksEyebrow: own ? 'Tasks · your skill' : 'Tasks', tasksTitle: own || 'The tutor picks the skill',
+        tasksSub: own ? 'Tasks on this skill alone' : 'As the work goes, by your progress',
+        pickAria: own ? 'Tasks on ' + own + ': choose which tasks to solve' : 'Tasks, the tutor picks the skill: choose which tasks to solve',
+        pickOpen: () => this.setState({ tasksPick: pickOn ? null : m.name, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, bellOpen: false, quotaOpen: false }),
+        reset: () => this.setState({ tasksPick: null, skillOpen: false, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: '' } }),
+        solve: m.sheet ? this.openBoard : m.name === OLY ? this.openModule : () => (this.openLesson(m.name), firstTask >= 0 && this.goSeg(firstTask)), solveAria: 'Solve the tasks of ' + m.name,
+        rec: rec.map(chip), groups: tiers.map((name, t) => ({ name, chips: skills.filter((k) => k.t === t).map(chip) })).filter((g) => g.chips.length) };
+      const look = { name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, letter: m.name[0], tone: m.tone };
+      if (m.mark) return { ...go, ...look, kind: 'rubric', kindName: 'Feedback by criteria', adaptive: false, done: m.mark + ' skills, each with a rubric',
+        aria: 'All the skills: Feedback by criteria: ' + m.mark, dots: Array.from({ length: m.mark }, () => ({ st: 'feedback-by-criteria' })) };
+      const all = m.sk.reduce((a, b) => a + b, 0), st = ['mastered', 'time-to-review', 'in-progress', 'ready-to-start', 'locked'];
+      return { ...go, ...look, kind: 'adaptive', kindName: 'Adaptive', adaptive: true, done: m.sk[0] + ' of ' + all + ' mastered',
+        aria: 'All the skills: ' + STATES.map((x, i) => x[1] + ': ' + m.sk[i]).join(', '), dots: m.sk.flatMap((n, i) => Array.from({ length: n }, () => ({ st: st[i] }))) };
   }
 }
 </script>
