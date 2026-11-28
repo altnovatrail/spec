@@ -78,7 +78,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `home-switch` | Home, the profile's menu at the top right, everything that is not a place: whose profile and "Switch learner"; "Settings", the one way to the section for adults — the profiles and each one's hints, this device, the rest —; "Help"; "Sign out" last | First slice |
 | `home-help` | Home, the adult's Help inside the profile's menu, with the way back to it | First slice |
 | `settings` | Settings, the section for adults, as a device's settings: the profiles, then This device, Language and Own AI key, each a row of a grouped list, and under it the quiet link Privacy — the legal texts and Accessibility are otherwise Help's; on the iPad the sidebar and the profile's page beside it, on the phone the list | First slice |
-| `settings-profile` | A profile's page: its avatar and name, then grouped lists — learning, hints by a tick, the voice by a switch and its speed, keeping works, and tutor time, a bar for the profile and one for the account and the hour it renews —; a hint mode changed, Save lit | First slice |
+| `settings-profile` | A profile's page: its avatar and name, then grouped lists — hints by a tick, the voice by a switch and its speed, keeping works, and tutor time, a bar for the profile and one for the account and the hour it renews —; a hint mode changed, Save lit | First slice |
 | `settings-unsaved` | Leaving a profile's page with changes not saved — by its close, the way back or another row of the list: “Save changes?”, and Save, Don’t Save and Cancel; Save sends them and goes on, Don’t Save drops them and goes on, Cancel stays | First slice |
 | `settings-device` | This device: the voice that reads, what each profile keeps here, and erasing it | First slice |
 | `settings-key` | Own AI key: the provider, the key in its row, keeping it on this device, Connect, and what happens to the key | First slice |
@@ -113,11 +113,23 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `module-task-hint` | Hint: the tutor's one panel, the task's leading question | For the author's approval |
 | `module-task-not-yet` | "Not yet" on a task of the olympiad module, the wavy line under the place of the mistake | For the author's approval |
 | `module-task-correct` | "Correct", and "Next task" in the row: the engine's next task within the skill | For the author's approval |
+| `module-task-reading` | The work being read: "Reading your work…" on the card | For the author's approval |
+| `module-task-reading-closer` | The work gone on to the next model: "Looking more closely…", "The first look wasn't sure — now a closer one", the spinner in a tinted disc whose ring pulses, and three dots of the models — the first done, the second pulsing, the third hollow — coming in one after another | For the author's approval |
+| `module-task-rung` | "Not yet", the hint in the tutor's panel, with "Report a problem" | For the author's approval |
+| `module-task-alt` | "Explain differently": the hint in other words | For the author's approval |
+| `module-task-report` | The form "Report a problem" with the tutor's words, the same as in a lesson | For the author's approval |
+| `module-task-full` | The tutor's sheet over the whole screen: the phone's grabber | For the author's approval |
+| `module-task-quota` | The tutor's time used up: Check reads no work, "Not checked" on the card | For the author's approval |
 | `module-choice` | A task with a choice: its options as buttons on the tracing paper under the statement, the tracing paper's own extension; a tap chooses one, and the sheet stays the learner's to work on | For the author's approval |
 | `module-choice-empty` | Check with no option chosen: "Choose an answer first" | For the author's approval |
 | `module-choice-wrong` | A wrong option chosen and checked: "Not yet", "You chose December", and the tutor's words on that trap | For the author's approval |
 | `module-choice-correct` | The right option: "Correct", checked by the key, no model reading it | For the author's approval |
 | `module-long` | A task whose statement is four lines, with its picture of dots: the tracing paper as tall as both | For the author's approval |
+| `essay-sheet` | A short essay, from Solve on its card, on the same sheet of a task from paper, lined: its topic the module's text on the tracing paper, the row's Done between Hint and Check, and the tutor's panel with no field | For the author's approval |
+| `essay-sheet-feedback` | Check on an essay: "Feedback" on the card, the feedback by the rubric in the tutor's panel, Done on the card | For the author's approval |
+| `essay-sheet-panel` | The feedback in the tutor's panel | For the author's approval |
+| `essay-sheet-done` | Done: the marks by the criteria in the tutor's panel, to an adult; the essay is over | For the author's approval |
+| `essay-sheet-next` | "Next task": the module's next essay on a clean sheet | For the author's approval |
 | `solve-kept` | A page opened from the solving history: its picked tasks with the work kept, and no verdict, which the device does not keep | First slice |
 | `legal-access` | The page Accessibility, from Help | First slice |
 | `map` | The skill map of olympiad maths, from Subjects: "Subjects" back, the module at the title, the legend with the count of each state, and the map in its frame — its 45 skills in four tiers and two anchor skills of other modules above them; on the iPad the tiers are columns left to right, each skill level with the mean of its prerequisites, each column its count of mastered and a square for each skill, and every link drawn, green from a skill mastered; on the phone the tiers are bands top to bottom, two skills to a row | Epic E24, for the author's approval |
@@ -129,31 +141,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `lesson-segments` | A lesson, its segments in a pop-over, from the line under its title | First slice |
 | `example` | A worked example, before "Next" | First slice |
 | `example-demo` | A worked example, all its parts shown | First slice |
-| `task` | A task on a squared sheet, "Step by step": the tutor's panel open with step 1 | First slice |
-| `task-steps` | A task, the list of its solving steps | First slice |
-| `task-mode` | A task, the solving mode: "Step by step" or "On my own" | First slice |
-| `task-pill` | A task, the panel closed: the step's pill above the row | First slice |
-| `task-hint` | A task, a hint before a wrong answer: the givens, a technique, the leading question | First slice |
-| `task-empty` | A task, Check without work: "Write an answer on the sheet" | First slice |
-| `task-reading` | A task, the work being read | First slice |
-| `task-reading-closer` | A task, the work gone on to the next model: "Looking more closely…", "The first look wasn't sure — now a closer one", the spinner in a tinted disc whose ring pulses, and three dots of the models — the first done, the second pulsing, the third hollow — coming in one after another | First slice |
-| `task-not-yet` | A task, "Not yet" as a card, the tutor's mark beside the work | First slice |
-| `task-rung` | A task, the rung in the panel, with "Report a problem" | First slice |
-| `task-alt` | A task, "Explain differently": the rung in other words | First slice |
-| `task-report` | A task, the form "Report a problem" | First slice |
-| `task-correct` | A task, "Correct", the solution and "Continue" | First slice |
-| `task-full` | A task, the tutor's sheet over the whole screen: the phone's grabber | First slice |
-| `choice` | A task with a choice, its options behind "Choose an answer" | First slice |
-| `choice-wrong` | A task with a choice, "Not yet" | First slice |
-| `solution-ask` | "Show the solution", asked first | First slice |
-| `quota` | The tutor's time used up: the quota's line, the task's own hints | First slice |
-| `lesson-end` | "Lesson complete", "Next lesson", "Solve", "Back to Home" | First slice |
-| `workbook` | A task on a workbook page of six lines | First slice |
-| `workbook-not-yet` | A workbook page, two lines "Not yet" | First slice |
-| `workbook-shown` | A workbook page, the solution shown: the task is over | First slice |
-| `essay` | An essay on a lined sheet, to a rubric | First slice |
-| `essay-feedback` | An essay, its feedback | First slice |
-| `essay-done` | An essay after "Done": the marks by the criteria, to an adult | First slice |
+| `lesson-end` | "Lesson complete" after the worked example: "Next lesson", "Solve", "Back to Home" | First slice |
 | `camera` | The camera of the paper flow, from "Take from my paper" | First slice |
 | `pick` | The tasks the AI found on the photographed page, every one picked | First slice |
 | `pick-file` | "From a file" on Home: a photo or a scan chosen on the device goes, with no viewfinder, to the same page to pick the tasks on; "Another file" in place of Retake, and Back leads Home | For the author's approval |
@@ -232,7 +220,7 @@ Each state is reached the way a person reaches it in Play, from the state before
 | `later-switch` | A child's profile menu: "Settings" with a lock, behind the PIN; Help outside the PIN, open to the child | Later · E4 app |
 | `later-help` | A child's Help inside the profile's menu, with the helplines | Later · E4 app |
 | `later-grownups` | "Settings" on a child's home: the PIN inside the profile's menu, past it the section for adults | Later · E4 app |
-| `later-settings` | Settings past the PIN on a child's home: the child's page, with "Ask a grown-up first" before the solution is shown | Later · E4 app |
+| `later-settings` | Settings past the PIN on a child's home: the child's page, "Learner" under the name | Later · E4 app |
 | `later-pip` | Pip, a child's tutor, with its text field and microphone | Later · E4 app |
 | `later-kinds` | The canvas kinds of other authors, under «…» in the top bar of a task from paper | Later · E5 |
 
@@ -244,28 +232,28 @@ Each part of the template opens with a comment `<!-- ============ … ==========
 
 | Line and part | What it draws |
 |---|---|
-| `Main.dc.html:525` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper dotted; in a lesson squared, lined or a workbook page, the module's; the number line and the geometry board of other authors |
+| `Main.dc.html:525` — Surfaces | The sheet, two screens tall and three wide, the task's page at its left: for a task from paper and a task of a module dotted, for a short essay lined; in a lesson squared or lined, the module's; the number line and the geometry board of other authors |
 | `Main.dc.html:589` — Camera | The camera's viewfinder |
 | `Main.dc.html:631` — The photographed page | The page to pick tasks on: the tasks the AI found, the learner's frames with their cross and corner, and the frame being dragged |
 | `Main.dc.html:674` — Ink on the screen | The learner's strokes, the eraser's targets, the tutor's marks: a lesson's box, the wavy line of "Show where" |
 | `Main.dc.html:719` — Clean sheet | A task's crop over the sheet, the strokes on it, and the wavy line on it; a module's task on it, its text, its picture and a choice's options |
 | `Main.dc.html:803` — Author canvases | The sandbox's chip |
 | `Main.dc.html:811` — A lesson | The explanation's card, the statement above the canvas, the worked example's parts |
-| `Main.dc.html:854` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›; on the page to pick from what was found in the middle, "Remove all frames" and Retake; the solving mode; on a task of the olympiad module the skill's pill and its choice |
+| `Main.dc.html:854` — Top bar | Back, the title and the line under it, the segments' pop-over, «…» of other authors' kinds under "Later", ‹ tasks ›; on the page to pick from what was found in the middle, "Remove all frames" and Retake; on a task of the olympiad module and of short essays the skill's pill and its choice |
 | `Main.dc.html:984` — More canvas kinds | The pop-over of other authors' kinds, under "Later" |
 | `Main.dc.html:1014` — Tool rail | The tools of `canvas` as a vertical glass bar — Pen, its colour a dot and a corner for its options, Eraser, Select, which a second tap gives its shapes, Lasso and Rectangle, Hand, Undo, Redo, Clear, Zoom in and Zoom out, and on a task from paper the grid's button, round —, and above them the crop's show and hide |
 | `Main.dc.html:1082` — The tutor | One component on every screen where the tutor stands — Home, the page to pick from, a task from paper, a task of a module, Pip under "Later" —, set by `tutorKit` of the script: its context and which of its parts are on. "Ask" in the bottom row — of a task from paper, of the check board and of a lesson —, the round button at the start of the bar of the page to pick from, the pill on Home, and the button at the right edge only on a screen with no row; the panel: the head with the quota and the speaker, the steps, the conversation, the context's buttons, the field with the microphone and Send |
-| `Main.dc.html:1385` — A lesson | The row of actions, the step's pill, the options, the solution's confirmation, "Report a problem", "Lesson complete" |
+| `Main.dc.html:1385` — A lesson | The row of actions of the explanation and the worked example, the segments, "Lesson complete"; "Report a problem" after it, on every screen. Its parts of a task in a lesson — the step's pill, the options, the solution's confirmation, the solving mode — no state reaches while the lessons are remade (Д309) |
 | `Main.dc.html:1555` — Pick | What left the device, the cards of what the page says, Select all, Start |
 | `Main.dc.html:1598` — Solve | The list of the tasks, the bar Hint · Check, the verdict as a card |
-| `Main.dc.html:1694` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
-| `Main.dc.html:2022` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
-| `Main.dc.html:2148` — The owner's profile | The name, the country, the avatar |
-| `Main.dc.html:2212` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
-| `Main.dc.html:2309` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the ring of the tutor's time, the tutor, shut, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Tasks from my paper", the modules' cards with the tiles of their lesson and their tasks, and the legend, and their shapes while read; the module's lessons; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, the tutor's time, the solving history, the legend, the module of the map, which tasks to solve |
-| `Main.dc.html:2827` — Settings | The section for adults as a device's settings: the sidebar on the iPad or the list on the phone, the page and its bar with Save, the grouped lists with their captions and notes, the ticks, the switches and the speed's segments |
-| `Main.dc.html:2961` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
-| `Main.dc.html:2979` — A legal text | The gist of a text, or the page Accessibility |
+| `Main.dc.html:1697` — Debug | Only for an account with the right of the debug mode: the debug button beside the tutor's and its window, Models, Log and Performance, and Performance's strip on the canvas |
+| `Main.dc.html:2025` — Sign-in | The sky, the language, and on the card the sign-in, the invite code, "I am 18 or older" and the texts |
+| `Main.dc.html:2151` — The owner's profile | The name, the country, the avatar |
+| `Main.dc.html:2215` — Who's learning | The profiles, "Add a learner", the PIN, the steps of a parent's consent, the demo's switch |
+| `Main.dc.html:2312` — Home, Subjects and the skill map | The row of places, or the phone's tab bar, and the pills at the right — the ring of the tutor's time, the tutor, shut, the notifications, the profile's menu —, drawn by app's own elements and classes and the styles `.ph-home` of the helmet, app's theme; Home's "Tasks from my paper", the modules' cards with the tiles of their lesson and their tasks, and the legend, and their shapes while read; the module's lessons; Subjects; the skill map's frame and the sketch of what `skill-map` draws; and the pop-overs — For grown-ups with the hint mode and its PIN under "Later", Help, the profile's menu, the notifications, the tutor's time, the solving history, the legend, the module of the map, which tasks to solve |
+| `Main.dc.html:2830` — Settings | The section for adults as a device's settings: the sidebar on the iPad or the list on the phone, the page and its bar with Save, the grouped lists with their captions and notes, the ticks, the switches and the speed's segments |
+| `Main.dc.html:2964` — Waiting | The ground of the screen to come — the sky or the page — and the spark pulsing in its middle |
+| `Main.dc.html:2982` — A legal text | The gist of a text, or the page Accessibility |
 
 ## Two sizes, and the rules between them
 
@@ -326,7 +314,7 @@ The mockup is drawn in absolute CSS px for its two sizes, and the sign-in for a 
 
 **Buttons without a caption** are a closed list: back, close, ‹ ›, the tools of `canvas`, the speaker, Help, the ring of the tutor's time — its number in it, a sign while none is used and once it is used up —, the tutor's button at the edge or in the bottom bar of the page to pick from, the debug button, the phone's grabber and the buttons of the paper flow — the camera's "Take photo", flash and photos, the crop's grip "Move the task" and its show and hide atop the tools, a frame's "Remove the frame" and "Resize the frame", "Remove all frames" and Retake of the page to pick from where its top bar does not fit one row with its words, and "Ask", the tutor's button of the solving screen of a task from paper, and its "Next task", once the task is over, where its bottom bar does not fit one row with their words. Each has its caption as its accessible name and a tooltip of the same words, on hover and on keyboard focus; the mockup gives the new ones no tooltip yet, and «Remove the frame» as the cross's, which `app` and `canvas` draw with one. «…» of other authors' kinds waits for epic E5. The mockup's tooltip is CSS alone (`.tip` of the helmet) and cannot be dismissed by Escape; `app` and `canvas` draw a tooltip of their own that can, as WCAG 1.4.13 asks. Every other button keeps its caption.
 
-**Pop-overs, not panels.** A list or a choice stands behind a small button and opens over the screen: the segments of a lesson, the solving steps, the solving mode, the options of a choice, the tasks of a page, the sheets on the phone, the profile's menu with Help and the PIN inside it, the notifications, the tutor's time, the module of the skill map, the avatars, the countries. On the iPad it hangs from its button and grows from its corner (`.nt-pop`, 0.2 s); on the phone it is a sheet from the bottom. The screen keeps no static panel but the row of places, the tool bar and the tutor's panel.
+**Pop-overs, not panels.** A list or a choice stands behind a small button and opens over the screen: the segments of a lesson, the skill of a module's tasks, the tasks of a page, the sheets on the phone, the profile's menu with Help and the PIN inside it, the notifications, the tutor's time, the module of the skill map, the avatars, the countries. On the iPad it hangs from its button and grows from its corner (`.nt-pop`, 0.2 s); on the phone it is a sheet from the bottom. The screen keeps no static panel but the row of places, the tool bar and the tutor's panel.
 
 **Motion.** Transitions of 0.15–0.35 s, on `cubic-bezier(.2,.8,.2,1)`; `prefers-reduced-motion: reduce` turns off every animation and transition (the helmet; WCAG 2.3.3).
 

@@ -1507,35 +1507,6 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
     </div>
   </sc-if>
 
-  <!-- "Report a problem" with the tutor's words: the operator reviews it (R136; R33 app). Names are not written in it. -->
-  <sc-if value="{{les.reportOpen}}" hint-placeholder-val="{{ false }}">
-    <button class="ph-scrim" aria-label="Close" onClick="{{les.reportCancel}}" style="position: absolute; inset: 0; cursor: default; background: rgba(0,0,0,0.18)"></button>
-    <div class="glass nt-pop ph-sheet ph-sheetx ph-report" role="dialog" aria-label="Report a problem with these words" style="position: absolute; left: 50%; top: 40px; width: 440px; margin-left: -220px; max-height: 760px; overflow-y: auto; border-radius: 20px; padding: 18px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 8px; transform-origin: 50% 0">
-      <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{les.reportCancel}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
-      <span style="font-size: 17px; font-weight: 700">Report a problem with these words</span>
-      <div style="padding: 10px 12px; border-radius: 12px; background: rgba(118,118,128,0.10); font-size: 13.5px; line-height: 1.4; color: #3A3A3C">{{les.reportWords}}</div>
-      <span style="font-size: 11.5px; color: #6E6E73">The tutor’s words above go with the report, as the app showed them.</span>
-      <div role="radiogroup" aria-label="What is wrong with the words?" style="display: flex; flex-direction: column">
-        <span style="padding: 6px 0 2px; font-size: 13px; font-weight: 600">What is wrong with the words?</span>
-        <sc-for list="{{les.kinds}}" as="o" hint-placeholder-count="6">
-          <button class="row" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="min-height: 44px; padding: 4px 6px; border-radius: 10px; display: flex; align-items: center; gap: 10px; text-align: left; font-size: 14px">
-            <span style="flex: none; width: 20px; height: 20px; border-radius: 10px; box-shadow: {{o.ring}}; background: {{o.dot}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span style="width: 7px; height: 7px; border-radius: 4px; background: #FFFFFF"></span></sc-if></span>{{o.t}}
-          </button>
-        </sc-for>
-        <sc-if value="{{les.reportErr}}" hint-placeholder-val="{{ false }}"><span role="alert" style="padding: 2px 0; font-size: 12.5px; font-weight: 500; color: #C93400">Choose what is wrong</span></sc-if>
-      </div>
-      <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">What else to say, if anything
-        <textarea rows="3" style="font: inherit; font-size: 14px; font-weight: 400; padding: 10px 12px; border: 0; border-radius: 12px; background: rgba(118,118,128,0.10); resize: none; user-select: text; -webkit-user-select: text"></textarea>
-      </label>
-      <span style="font-size: 11.5px; line-height: 1.35; color: #6E6E73">Up to 1000 characters. Please write no names in it, yours or anyone else’s: the report keeps it as it is written.</span>
-      <span style="font-size: 11.5px; line-height: 1.35; color: #6E6E73">If anyone is in danger now, call your country’s emergency number: don’t wait for the review.</span>
-      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px">
-        <button onClick="{{les.reportCancel}}" style="height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Cancel</button>
-        <button onClick="{{les.reportSend}}" aria-disabled="{{les.sendOff}}" style="height: 44px; padding: 0 20px; border-radius: 22px; background: {{les.sendBtn.bg}}; color: {{les.sendBtn.fg}}; font-size: 14px; font-weight: 600">Send</button>
-      </div>
-    </div>
-  </sc-if>
-
   <!-- The end of the lesson: its title and "Lesson complete", the module's next lesson and Solve, its tasks; no score (R06 app). -->
   <sc-if value="{{les.end}}" hint-placeholder-val="{{ false }}">
     <div style="position: absolute; inset: 0; background: #F2F2F7">
@@ -1550,6 +1521,35 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       </div>
     </div>
   </sc-if>
+</sc-if>
+
+<!-- "Report a problem" with the tutor's words: the operator reviews it (R136; R33 app). Names are not written in it. -->
+<sc-if value="{{rep.open}}" hint-placeholder-val="{{ false }}">
+  <button class="ph-scrim" aria-label="Close" onClick="{{rep.cancel}}" style="position: absolute; inset: 0; z-index: 8; cursor: default; background: rgba(0,0,0,0.18)"></button>
+  <div class="glass nt-pop ph-sheet ph-sheetx ph-report" role="dialog" aria-label="Report a problem with these words" style="position: absolute; z-index: 9; left: 50%; top: 40px; width: 440px; margin-left: -220px; max-height: 760px; overflow-y: auto; border-radius: 20px; padding: 18px; box-sizing: border-box; background: rgba(255,255,255,0.96); display: flex; flex-direction: column; gap: 8px; transform-origin: 50% 0">
+    <button class="ib tip tip-bl ph-only ph-x" aria-label="Close" data-tip="Close" onClick="{{rep.cancel}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    <span style="font-size: 17px; font-weight: 700">Report a problem with these words</span>
+    <div style="padding: 10px 12px; border-radius: 12px; background: rgba(118,118,128,0.10); font-size: 13.5px; line-height: 1.4; color: #3A3A3C">{{rep.words}}</div>
+    <span style="font-size: 11.5px; color: #6E6E73">The tutor’s words above go with the report, as the app showed them.</span>
+    <div role="radiogroup" aria-label="What is wrong with the words?" style="display: flex; flex-direction: column">
+      <span style="padding: 6px 0 2px; font-size: 13px; font-weight: 600">What is wrong with the words?</span>
+      <sc-for list="{{rep.kinds}}" as="o" hint-placeholder-count="6">
+        <button class="row" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="min-height: 44px; padding: 4px 6px; border-radius: 10px; display: flex; align-items: center; gap: 10px; text-align: left; font-size: 14px">
+          <span style="flex: none; width: 20px; height: 20px; border-radius: 10px; box-shadow: {{o.ring}}; background: {{o.dot}}; display: flex; align-items: center; justify-content: center"><sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><span style="width: 7px; height: 7px; border-radius: 4px; background: #FFFFFF"></span></sc-if></span>{{o.t}}
+        </button>
+      </sc-for>
+      <sc-if value="{{rep.err}}" hint-placeholder-val="{{ false }}"><span role="alert" style="padding: 2px 0; font-size: 12.5px; font-weight: 500; color: #C93400">Choose what is wrong</span></sc-if>
+    </div>
+    <label style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600">What else to say, if anything
+      <textarea rows="3" style="font: inherit; font-size: 14px; font-weight: 400; padding: 10px 12px; border: 0; border-radius: 12px; background: rgba(118,118,128,0.10); resize: none; user-select: text; -webkit-user-select: text"></textarea>
+    </label>
+    <span style="font-size: 11.5px; line-height: 1.35; color: #6E6E73">Up to 1000 characters. Please write no names in it, yours or anyone else’s: the report keeps it as it is written.</span>
+    <span style="font-size: 11.5px; line-height: 1.35; color: #6E6E73">If anyone is in danger now, call your country’s emergency number: don’t wait for the review.</span>
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px">
+      <button onClick="{{rep.cancel}}" style="height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 600; color: #0071E3">Cancel</button>
+      <button onClick="{{rep.send}}" aria-disabled="{{rep.sendOff}}" style="height: 44px; padding: 0 20px; border-radius: 22px; background: {{rep.sendBtn.bg}}; color: {{rep.sendBtn.fg}}; font-size: 14px; font-weight: 600">Send</button>
+    </div>
+  </div>
 </sc-if>
 
 <!-- ============ Pick: the tasks to solve ============ -->
@@ -1641,6 +1641,9 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
         Hint
       </button>
     </sc-if>
+    <sc-if value="{{pDone.on}}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{essayDone}}" aria-disabled="{{pDone.off}}" style="height: 44px; padding: 0 16px; border-radius: 22px; font-size: 14px; font-weight: 600; color: {{pDone.fg}}">Done</button>
+    </sc-if>
     <div class="ph-rowsep" style="width: 1px; height: 24px; background: rgba(0,0,0,0.1); margin: 0 4px"></div>
     <button onClick="{{check}}" style="height: 44px; padding: 0 22px; border-radius: 22px; background: {{pchk.bg}}; color: {{pchk.fg}}; font-size: 14px; font-weight: 600">Check</button>
     <sc-if value="{{pover}}" hint-placeholder-val="{{ false }}">
@@ -1683,7 +1686,7 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <sc-if value="{{vNoKey}}" hint-placeholder-val="{{ false }}"><button onClick="{{askHint}}" style="height: 44px; padding: 0 14px; border-radius: 22px; color: #0071E3; font-size: 14px; font-weight: 600">Hint</button><button onClick="{{next}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Next</button></sc-if>
       <sc-if value="{{vDone}}" hint-placeholder-val="{{ false }}"><button onClick="{{doneGo}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: #0071E3; color: #FFFFFF; font-size: 14px; font-weight: 600">{{doneWords}}</button></sc-if>
       <sc-if value="{{vCont}}" hint-placeholder-val="{{ false }}"><button onClick="{{les.cont}}" style="height: 44px; padding: 0 18px 0 22px; border-radius: 22px; background: #0071E3; color: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600">Continue<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M13 8.5l3.5 3.5-3.5 3.5"></path></svg></button></sc-if>
-      <sc-if value="{{vFb}}" hint-placeholder-val="{{ false }}"><button onClick="{{les.essayDone}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Done</button></sc-if>
+      <sc-if value="{{vFb}}" hint-placeholder-val="{{ false }}"><button onClick="{{essayDone}}" style="height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(0,113,227,0.10); color: #0071E3; font-size: 14px; font-weight: 600">Done</button></sc-if>
     </div>
   </sc-if>
 
@@ -3097,7 +3100,6 @@ const COUNTRIES = [['US', 'United States'], ['CA', 'Canada'], ['AU', 'Australia'
 // ready to start, locked — or a mark instead of one, come from the function ./states of skill-map (R148; architecture 3.3).
 const MODS = [
   { name: 'Olympiad maths 1–6', meta: 'NovaTrail · adaptive', glyph: '∑', color: 'linear-gradient(135deg, #FFB340 0%, #FF9F0A 100%)', tone: 0, sk: [14, 3, 6, 9, 13] },
-  { name: 'School maths · grade 3', meta: 'NovaTrail · adaptive', glyph: '÷', color: 'linear-gradient(135deg, #64D2FF 0%, #0A84FF 100%)', tone: 1, sk: [20, 2, 4, 6, 4] },
   { name: 'Short essays', meta: 'NovaTrail · feedback by a rubric', glyph: 'Aa', color: 'linear-gradient(135deg, #DA8FFF 0%, #AF52DE 100%)', tone: 2, mark: 18 }
 ];
 // The check board "Introductory block" once connected in Subjects: a card on home, whose tasks are solved on the sheet of a task
@@ -3134,6 +3136,20 @@ const OM = [
   { id: 3, label: 'Dots in rows', skill: 'Number patterns', text: 'Row 1 has 2 dots, row 2 has 5 dots, and row 3 has 8 dots: each row has 3 more dots than the row before. How many dots are there in row 10?', pic: 'dots', ans: '29', wrong: '32',
     hint: 'How many steps of 3 are there from row 1 to row 10?', alt: 'Write the rows and their dots in two lines, and look at how they change.' }
 ].map((t) => ({ ...t, x: 0, y: 0, w: 272, ch: Math.round(18 + Math.ceil(t.text.length / 40) * 18.2 + (t.pic ? 34 : 0) + (t.options ? optRows(t.options) * 34 + 2 : 0)) }));
+// Short essays on the same sheet, lined by the module's canvas: one essay at a time, as the engine picks it, its topic the module's
+// text on the tracing paper. Check gives feedback by the rubric in the tutor's panel; Done ends the attempt, and the marks by the
+// criteria come to an adult. A proposal to the author.
+const ESS = 'Short essays';
+const ES = [
+  { id: 1, label: 'The talking umbrella', skill: 'First sentences', text: 'A shop sells an umbrella that can talk, but only when it rains. Write three different first sentences for an essay about it. Then put a ring round the one you would keep.',
+    hint: 'Which of your three sentences would make you read on?', alt: 'Start one sentence in the middle of something happening. Which of yours does?',
+    feedback: '“The umbrella cleared its throat” makes a reader want to know why. The other two tell what happens before it happens. Which one did you ring?',
+    criteria: [['Three different first sentences', 'met'], ['Each makes a reader want to go on', 'not_met'], ['One sentence is ringed', 'not_assessed']] },
+  { id: 2, label: 'A day you remember', skill: 'Paragraphs', text: 'Write a short essay about a day of your life that you remember well.',
+    hint: 'What happened first that day, and what came after it?', alt: 'Give each part of the day a paragraph of its own. What is the first one about?',
+    feedback: 'The day comes in order, and the walk to the river is easy to picture. The ending stops at the bus home: why was the day worth remembering?',
+    criteria: [['One day, in paragraphs, in order', 'met'], ['The ending says why it is remembered', 'not_met'], ['At least one person or place of that day', 'met']] }
+].map((t) => ({ ...t, x: 0, y: 0, w: 272, ch: Math.round(18 + Math.ceil(t.text.length / 40) * 18.2) }));
 // The icons of app's shell and Home: app's own set, Material Symbols Rounded (Apache-2.0), as src/app/icons.ts of app has them.
 const AI = {
   home: 'M5 11q-.825 0-1.412-.587T3 9V5q0-.825.588-1.412T5 3h4q.825 0 1.413.588T11 5v4q0 .825-.587 1.413T9 11zm0 10q-.825 0-1.412-.587T3 19v-4q0-.825.588-1.412T5 13h4q.825 0 1.413.588T11 15v4q0 .825-.587 1.413T9 21zm10-10q-.825 0-1.412-.587T13 9V5q0-.825.588-1.412T15 3h4q.825 0 1.413.588T21 5v4q0 .825-.587 1.413T19 11zm0 10q-.825 0-1.412-.587T13 19v-4q0-.825.588-1.412T15 13h4q.825 0 1.413.588T21 15v4q0 .825-.587 1.413T19 21z',
@@ -3170,7 +3186,7 @@ const MAPS = {
   // 45 skills, as Home's card counts them: each tier by the longest chain of prerequisites, as the format computes it;
   // a skill is ready to start when each of its prerequisites is mastered or to review, and locked otherwise.
   'Olympiad maths 1–6': { tiers: ['Tier 1 · Basics', 'Tier 2 · Patterns', 'Tier 3 · Reasoning', 'Tier 4 · Olympiad'],
-    anchors: [{ id: 'x1', name: 'Division with a remainder', st: 'known', mod: 'School maths · grade 3' }, { id: 'x2', name: 'Fractions of a whole', st: 'unknown', mod: 'not connected' }],
+    anchors: [{ id: 'x1', name: 'Division with a remainder', st: 'unknown', mod: 'not connected' }, { id: 'x2', name: 'Fractions of a whole', st: 'unknown', mod: 'not connected' }],
     skills: tiered([
       [['a1', 'Counting on', 'mastered'], ['a2', 'Even and odd', 'mastered'], ['a3', 'Perimeter', 'mastered'], ['a4', 'Comparing numbers', 'mastered'],
         ['a5', 'Shapes and sides', 'mastered'], ['a6', 'Measuring length', 'mastered'], ['a7', 'Clocks', 'mastered'], ['a8', 'Coins and change', 'review'],
@@ -3189,12 +3205,6 @@ const MAPS = {
         ['d6', 'Remainders and cycles', 'locked', ['c11', 'b2']], ['d7', 'Invariants', 'locked', ['c4', 'b5']], ['d8', 'Colouring arguments', 'locked', ['c5', 'b5']],
         ['d9', 'Handshakes', 'locked', ['c3', 'c8']], ['d10', 'Extreme principle', 'locked', ['c3', 'c9']]]
     ]) },
-  'School maths · grade 3': { tiers: ['Tier 1 · Numbers', 'Tier 2 · Operations', 'Tier 3 · Measures', 'Tier 4 · Fractions'], skills: [
-    { id: 'a', t: 0, r: 0, name: 'Numbers to 1000', st: 'mastered' }, { id: 'b', t: 0, r: 1, name: 'Place value', st: 'mastered' }, { id: 'c', t: 0, r: 2, name: 'Number line', st: 'review' },
-    { id: 'd', t: 1, r: 0, name: 'Adding in columns', st: 'mastered', from: ['a', 'b'] }, { id: 'e', t: 1, r: 1, name: 'Multiplying by 6–9', st: 'progress', from: ['b'] }, { id: 'f', t: 1, r: 2, name: 'Remainders', st: 'ready', from: ['c'] },
-    { id: 'g', t: 2, r: 0, name: 'Length and units', st: 'progress', from: ['d'] }, { id: 'h', t: 2, r: 1, name: 'Hours and minutes', st: 'ready', from: ['d', 'e'] },
-    { id: 'i', t: 3, r: 0, name: 'Halves and quarters', st: 'locked', from: ['g'] }, { id: 'j', t: 3, r: 1, name: 'Fractions on a line', st: 'locked', from: ['h'] }
-  ] },
   'Short essays': { tiers: ['Tier 1 · Sentences', 'Tier 2 · Paragraphs', 'Tier 3 · Structure', 'Tier 4 · Style'], skills: [
     { id: 'a', t: 0, r: 0, name: 'Sentence ends', st: 'rubric' }, { id: 'b', t: 0, r: 1, name: 'Joining sentences', st: 'rubric' },
     { id: 'c', t: 1, r: 0, name: 'Topic sentence', st: 'rubric', from: ['a'] }, { id: 'd', t: 1, r: 1, name: 'Supporting details', st: 'rubric', from: ['b'] },
@@ -3232,10 +3242,6 @@ const POLYA = [
   { t: 'Solve it', d: 'Carry out the plan, and give the answer.', exit: 'slots' },
   { t: 'Check the answer', d: 'Put your answer back into the task, and see whether everything fits.', exit: 'none' }
 ];
-const WB_STEPS = [
-  { t: 'Fill in the boxes', d: 'Write the quotient and the remainder in the boxes of each line.', exit: 'slots' },
-  { t: 'Check each line', d: 'Multiply back, and add what is left over.', gives: 'techniques', exit: 'none' }
-];
 const ESSAY_STEPS = [
   { t: 'Plan the essay', d: 'Think what each sentence is to do before you write it.', gives: 'techniques', exit: 'none' },
   { t: 'Write it', d: 'Write on the lines, in your own words.', exit: 'none' },
@@ -3248,59 +3254,11 @@ const LESSONS = {
       list: ['Find what is added each time.', 'Count the steps from the first number.', 'Add the amount once for every step.'] },
     { k: 'example', title: 'Squares of matches', canvas: 'squares', statement: 'One square takes 4 matches. Two squares in a row take 7, and three take 10. How many matches do 6 squares in a row take?',
       parts: ['Each new square adds 3 matches: it shares a side with the one before.', 'From 1 square to 6 squares there are 5 steps.', '4 + 5 × 3 = 19.', 'Answer: 19 matches.'] },
-    { k: 'task', title: 'Dots in rows', canvas: 'squares', pic: 'dots', alt: 'Three rows of dots: 2 dots, then 5, then 8.',
-      statement: 'Row 1 has 2 dots, row 2 has 5 dots, and row 3 has 8 dots: each row has 3 more dots than the row before. How many dots are there in row 10?',
-      givens: ['Row 1 has 2 dots.', 'Each row has 3 more dots than the row before.'], unknown: 'How many dots there are in row 10.',
-      techs: [['Make a table', 'Write the rows and their dots in two lines, and look at how they change.'], ['Look for a pattern', 'Find what stays the same from one row to the next.']],
-      lead: 'How many steps of 3 are there from row 1 to row 10?', wrong: '32', right: '29',
-      rungs: ['Count the steps again: from row 1 to row 10, how many times are 3 dots added?', 'Is the number of steps the same as the number of the row?', 'Try a smaller case: how many dots are in row 3, and how many steps of 3 led there?'],
-      alts: ['Write rows 1 to 4 and their dots in a table. By row 4, how many 3s have been added?', 'Row 1 already has its 2 dots. Which rows add 3 more?', 'Draw rows 1, 2 and 3. Which of them have new dots?'],
-      praise: 'Right: 9 steps of 3 after the first 2. Which helped — the table, or the pattern?',
-      solution: ['From row 1 to row 10 there are 9 steps.', 'Each step adds 3 dots: 2 + 9 × 3 = 29.', 'Row 10 has 29 dots.'] },
-    { k: 'task', title: 'Which comes next', canvas: 'squares', statement: 'Which number comes next: 1, 4, 9, 16, …?', options: ['20', '24', '25', '36'], key: 2,
-      givens: ['The numbers are 1, 4, 9 and 16.'], unknown: 'The number that comes after 16.',
-      techs: [['Look for a pattern', 'Find what stays the same from one number to the next.'], ['Start with small numbers', 'See what 1, 2 and 3 do, then go on.']],
-      lead: 'What is added each time: 3, then 5, then …?',
-      rungs: ['Look at the steps between the numbers: 4 − 1, 9 − 4, 16 − 9. What do you see?', 'The steps are 3, 5 and 7. What would the next step be?', 'Try small numbers: what are 1 × 1, 2 × 2 and 3 × 3?'],
-      alts: ['Write the numbers in a row, and the differences under them. What comes next under them?', 'Each step grows by the same amount. By how much?', 'Draw 1, 4 and 9 as squares of dots. What is the next square?'],
-      praise: 'Right: 5 × 5 = 25. Which helped — the steps, or the squares?',
-      solution: ['The steps grow by 2 each time: 3, 5, 7, so the next step is 9.', '16 + 9 = 25. The numbers are 1 × 1, 2 × 2, 3 × 3, 4 × 4, and then 5 × 5.'] }
-  ] },
-  'School maths · grade 3': { title: 'Division with a remainder', steps: WB_STEPS, segs: [
-    { k: 'explanation', title: 'Sharing with some left over', pic: 'share', alt: '14 dots: four groups of 3, and 2 dots left over.',
-      paras: ['Not every number shares out exactly. When it does not, some is left over: that is the remainder.', '14 sweets shared among 4 friends: each gets 3, and 2 are left. We write 14 ÷ 4 = 3 r 2.'],
-      list: ['Find the biggest times-table number that fits.', 'Take it away: what is left is the remainder.', 'The remainder is always smaller than the number you divide by.'] },
-    { k: 'example', title: 'Two lines worked out', canvas: 'workbook', statement: 'Divide, and write the quotient and the remainder.',
-      lines: [{ a: '26 ÷ 3 =', v: ['8', '2'] }, { a: '34 ÷ 6 =', v: ['5', '4'] }],
-      parts: [{ t: '3 × 8 = 24 is the closest to 26 without going over.', fill: [[0, 0]] }, { t: '26 − 24 = 2 is left over.', fill: [[0, 1]] }, { t: '6 × 5 = 30, and 34 − 30 = 4.', fill: [[1, 0], [1, 1]] }] },
-    { k: 'task', title: 'Remainders', canvas: 'workbook', statement: 'Divide, and write the quotient and the remainder.',
-      lines: [{ a: '47 ÷ 6 =', ok: '7 r 5' }, { a: '38 ÷ 5 =', ok: '7 r 3', bad: '6 r 8', boxes: [0, 1] }, { a: '29 ÷ 4 =', ok: '7 r 1' }, { a: '52 ÷ 7 =', ok: '7 r 3' }, { a: '44 ÷ 9 =', ok: '4 r 8', bad: '4 r 7', boxes: [1] }, { a: '33 ÷ 8 =', ok: '4 r 1' }],
-      techs: [['Count up in steps', 'Say the times table of the number until you pass the number you divide.'], ['Undo it', 'To check a division, multiply back and add what is left over.']],
-      lead: 'Which number of the 6 times table is closest to 47 without going over?',
-      rungs: ['Look at line 2: is the remainder smaller than 5?', 'A remainder is always smaller than the number you divide by. Which lines break that?', 'Try 38 ÷ 5 with counters: how many fives fit into 38?'],
-      alts: ['In line 2, could one more 5 fit into what is left?', 'Multiply back in line 5: does 9 × 4 + 7 make 44?', 'Count up in fives: 5, 10, 15, … How far do you get before 38?'],
-      praise: 'Every line fits. Which helped — counting up in steps, or undoing it?',
-      solution: ['38 ÷ 5: 5 × 7 = 35, and 38 − 35 = 3, so 7 r 3.', '44 ÷ 9: 9 × 4 = 36, and 44 − 36 = 8, so 4 r 8.', 'Each remainder is smaller than the number you divide by.'] }
   ] },
   'Short essays': { title: 'First sentences', steps: ESSAY_STEPS, segs: [
     { k: 'explanation', title: 'The first sentence',
       paras: ['The first sentence of an essay makes a reader want to go on — or not.', 'A good one starts where something is already happening, or leaves the reader with a question they want answered.'],
       list: ['Start in the middle of something.', 'Leave the reader with a question.', 'Leave out “This essay is about…”.'] },
-    { k: 'task', title: 'The best first sentence', canvas: 'lined', statement: 'Which first sentence makes a reader want to go on?',
-      options: ['It was an ordinary Tuesday.', 'The lift stopped between two floors, and the lights went out.', 'This essay is about a lift.'], key: 1,
-      steps: [{ t: 'Read each sentence', d: 'Read each one as a reader would, and ask what it makes you want to know.', gives: 'techniques', exit: 'none' }, { t: 'Choose one', d: 'Choose the sentence that makes you want to read on.', exit: 'slots' }],
-      techs: [['Start in the middle', 'Begin where something is already happening, and let the reader catch up.']],
-      lead: 'Which sentence makes you ask “What happens next?”',
-      rungs: ['Read each sentence: which one leaves a question in your head?', 'Which sentence starts in the middle of something happening?', 'Picture each sentence as the first line of a film. Which would you watch on?'],
-      alts: ['Which sentence tells you something you want to know more about?', 'Which one could not be the start of any day at all?', 'Cover the other two. Which one alone pulls you in?'],
-      praise: 'Right: it starts in the middle of the story. What question does it leave?',
-      solution: ['“The lift stopped between two floors, and the lights went out.” starts where something is already happening.', 'The other two tell the reader nothing they want to know more about.'] },
-    { k: 'task', title: 'The talking umbrella', canvas: 'lined', rubric: true,
-      statement: 'A shop sells an umbrella that can talk, but only when it rains. Write three different first sentences for an essay about it. Then put a ring round the one you would keep.',
-      techs: [['Start in the middle', 'Begin where something is already happening, and let the reader catch up.'], ['Read it aloud', 'Hear where a sentence trips, and mend it.']],
-      lead: 'Which of your three sentences would make you read on?',
-      feedback: '“The umbrella cleared its throat” makes a reader want to know why. The other two tell what happens before it happens. Which one did you ring?',
-      criteria: [['Three different first sentences', 'met'], ['Each makes a reader want to go on', 'not_met'], ['One sentence is ringed', 'not_assessed']] }
   ] }
 };
 // The step of each lesson the demo’s learner has reached, for its tile on Home.
@@ -3309,10 +3267,9 @@ const LESSONS = {
 const LESSON_LIST = {
   'Olympiad maths 1–6': [[['Counting on', 'passed', 3], ['Even and odd', 'passed', 3], ['Clocks', 'passed', 4]], [['Number patterns', 'begun', 4]],
     [['Days and cycles', 'new', 4], ['Areas of shapes', 'new', 3]], [['Sums of rows', 'new', 5]], [['Pigeonhole principle', 'new', 4]]],
-  'School maths · grade 3': [[['Place value', 'passed', 3]], [['Division with a remainder', 'begun', 3]], [['Length and units', 'new', 4], ['Hours and minutes', 'new', 3]]],
   'Short essays': [[['First sentences', 'begun', 3]], [['Topic sentence', 'new', 3], ['Supporting details', 'new', 3]], [['Order of ideas', 'new', 4]]]
 };
-const LESSON_AT = { 'Olympiad maths 1–6': 2, 'School maths · grade 3': 1, 'Short essays': 1 };
+const LESSON_AT = { 'Olympiad maths 1–6': 2, 'Short essays': 1 };
 const MARK = { met: ['Met', '#1E7A35'], not_met: ['Not met', '#C93400'], not_assessed: ['Not assessed', '#6E6E73'] };
 // The kinds of a report on the tutor's words (R136; AttemptService.ReportProblem).
 const REPORT_KINDS = ['Wrong', 'Unclear', 'Not right for the learner’s age', 'Harmful, dangerous or upsetting', 'Asks about something personal, or talks of it', 'Something else'];
@@ -3362,7 +3319,7 @@ const dbgUsd = (x) => '$' + (x < 0.01 ? x.toFixed(5) : x.toFixed(4));
 const dbgNum = (n) => n.toLocaleString('en-US');
 
 // Settings (RUN.md, T305): a profile's choices as a new profile has them, and the glyphs of the rows' tiles, drawn white on their colour.
-const ST_FORM = { mode: 'steps', hints: 'where', voice: true, speed: 'normal', keep: false, ask: true };
+const ST_FORM = { hints: 'where', voice: true, speed: 'normal', keep: false };
 const ST_ICON = {
   device: 'M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM11 18h2',
   globe: 'M12 3a9 9 0 1 0 .01 0zM3.5 12h17M12 3c2.4 2.6 3.5 5.6 3.5 9s-1.1 6.4-3.5 9M12 3c-2.4 2.6-3.5 5.6-3.5 9s1.1 6.4 3.5 9',
@@ -3848,6 +3805,8 @@ class Component extends DCLogic {
     // A task of a module opens on no line: that the tutor is an AI, Help says (R123); a task from paper says where hints come.
     else if (!list.length && (this.isPip(st) || !this.lesNow(st))) add.push({ id: this.mid++, who: 'pip', text: this.isPip(st)
       ? 'Hi, I’m Pip. Ask me ' + (st.micOn ? 'by voice or text' : 'anything') + ' — I’ll help you find the answer, not give it.'
+      : this.isEssay(st) && st.surface === 'paper' ? 'Take a hint, or Check: the tutor gives feedback by the essay’s criteria, and never writes it for you.'
+      : this.isAdaptive(st) && st.surface === 'paper' ? 'Take a hint: the tutor answers with a question, never with the answer. A program checks every answer.'
       : 'Ask about this task by text or voice, or take a hint: the tutor answers with a question, never with the answer. A program checks every answer.' });
     return list.concat(add);
   }
@@ -3889,8 +3848,9 @@ class Component extends DCLogic {
       side: !c.home,
       // The speaker in the head: the tutor's words aloud.
       voicing: true,
-      // The field with Send, and the microphone: speech into the field. A child's microphone is the grown-up's switch.
-      field: true,
+      // The field with Send, and the microphone: speech into the field. A child's microphone is the grown-up's switch. A task of a
+      // module on the sheet takes no question: its field stands only in grown-up mode.
+      field: !(st.surface === 'paper' && st.stage === 'solve' && this.isAdaptive(st)) || st.grown === c.key,
       mic: !pip || st.micOn,
       // Both wait while today's tutor time is used up.
       off: out,
@@ -4233,7 +4193,8 @@ class Component extends DCLogic {
   // A module solved on the sheet, from its card on home: the check board, its tasks as the picked tasks of a page, and the olympiad module, a task at a time.
   openBoard = () => this.openSheet('sheet');
   openModule = () => this.openSheet('module');
-  openSheet = (captured) => this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured, frames: { [captured]: [] }, selected: this.pageTasks(captured).map((t) => t.id), current: 1, chosen: {}, skillOpen: false,
+  openEssays = () => this.openSheet('essay');
+  openSheet = (captured) => this.setState({ screen: 'canvas', surface: 'paper', stage: 'solve', back: 'home', captured, frames: { [captured]: [] }, selected: this.pageTasks(captured).map((t) => t.id), current: 1, chosen: {}, skillOpen: false, grid: captured === 'essay' ? 'lines' : 'dots',
     grownOpen: false, bellOpen: false, modsOpen: false, ptries: {}, status: {}, verdict: null, cardOpen: true, tasksOpen: false, more: false, chatOpen: false, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false,
     view: { z: 1, x: 0, y: 0 }, tSel: false, tMode: 'orig', tScale: 1, clipPos: null });
   openLesson(name) {
@@ -4410,10 +4371,13 @@ class Component extends DCLogic {
   // A page with no task still draws the values of the solving screen it hides: they take the page's first task.
   task(st) { st = st || this.state; const ts = this.tasks(st); return ts.find((t) => t.id === st.current) || ts[0] || this.pageTasks(st.captured)[0]; }
   // The tasks of a source: a photographed page, or the check board, whose tasks come from the module.
-  pageTasks(d) { return d === 'sheet' ? SH : d === 'module' ? OM : d === 'olympiad' ? OL : WS; }
+  pageTasks(d) { return d === 'sheet' ? SH : d === 'module' ? OM : d === 'essay' ? ES : d === 'olympiad' ? OL : WS; }
   // A module solved on the sheet: the check board, or the olympiad module, whose tasks the engine picks one at a time.
-  isBoard(st) { st = st || this.state; return st.captured === 'sheet' || st.captured === 'module'; }
-  isAdaptive(st) { st = st || this.state; return st.captured === 'module'; }
+  isBoard(st) { st = st || this.state; return st.captured === 'sheet' || st.captured === 'module' || st.captured === 'essay'; }
+  // A module whose tasks the engine picks one at a time — the olympiad module, or short essays —, and its name.
+  isAdaptive(st) { st = st || this.state; return st.captured === 'module' || st.captured === 'essay'; }
+  isEssay(st) { st = st || this.state; return st.captured === 'essay'; }
+  sheetMod(st) { st = st || this.state; return st.captured === 'essay' ? ESS : OLY; }
   tname(t, st) { st = st || this.state; return t.manual ? 'Your frame ' + (this.framesOf(st).findIndex((f) => f.id === t.id) + 1) : this.isBoard(st) ? 'Task ' + t.id : st.captured === 'olympiad' ? 'Problem ' + t.id : 'Equation (' + t.id + ')'; }
   tkey(id) { return this.state.captured + '-' + id; }
   // A task from paper is over once it is correct or has no key: its solution is never shown.
@@ -5031,10 +4995,13 @@ class Component extends DCLogic {
   check = () => {
     const s = this.state, t = this.task(), k = this.tkey(t.id), ol = s.captured === 'olympiad' && !t.manual;
     if (this.isAdaptive(s) && t.options) return this.checkChoice(t, k);
+    if (this.isEssay(s)) return this.checkEssay(t, k);
     if (!this.hasInk(t)) {
       const v = ol ? { kind: 'info', title: 'Circle an answer first', line: 'Circle one option on the task with the pen, then Check.' } : { kind: 'info', title: 'Write your solution first', line: 'Write it here with the pen, then Check.' };
       return this.settle(v, '', null, v.line, k);
     }
+    // With the tutor's time used up, no model reads the work on the sheet (R98).
+    if (s.quotaOut) return this.setState({ verdict: { kind: 'info', title: 'Not checked', line: QUOTA_READ } });
     const got = ol ? this.circled(t) : [];
     const inner = this.within(t), n = s.ptries[k] || 0, tried = !t.nokey && (!ol || got.length === 1);
     this.setState({ dbgBusy: this.dbgOn(), verdict: this.reading(1), ptries: tried ? { ...s.ptries, [k]: n + 1 } : s.ptries, pmark: null, vmarks: null });
@@ -5098,6 +5065,28 @@ class Component extends DCLogic {
     this.aiSay(t.traps[got] || t.hint, { kind: 'hint', label: 'Hint' });
   }
 
+  // An essay: the work is read and assessed by the rubric, and the feedback comes to the tutor's panel; no verdict.
+  checkEssay(t, k) {
+    if (!this.hasInk(t)) {
+      const v = { kind: 'info', title: 'Write your essay first', line: 'Write it here with the pen, then Check.' };
+      return this.settle(v, '', null, v.line, k);
+    }
+    this.setState({ verdict: this.reading(1), ptries: { ...this.state.ptries, [k]: (this.state.ptries[k] || 0) + 1 } });
+    this.later(() => {
+      if (this.ctx().key !== k) return;
+      this.settle({ kind: 'fb', title: 'Feedback', line: 'The feedback is in the tutor’s panel. Write again, or tap Done.' }, '', null, null, k);
+      this.aiSay(t.feedback, { kind: 'fb' });
+    }, 1300);
+  }
+  // "Done" ends an essay's attempt after a Check: the marks by the criteria come to an adult with it, and the row offers the next task.
+  sheetDone = () => {
+    const s = this.state, t = this.task(), k = this.tkey(t.id);
+    if (!s.ptries[k] || this.over(t.id)) return;
+    const rows = [{ who: 'res', res: 'done', title: 'It was finished with Done' }];
+    if (!this.isPip()) rows.push({ who: 'crit', crit: t.criteria });
+    this.say(rows, { status: { ...s.status, [k]: 'done' }, verdict: null, chatOpen: true });
+  };
+
   strokesOf(t) { const s = this.state; return (s.strokes[this.tkey(t.id)] || []).length + (s.strokes[this.clipKey()] || []).length; }
 
   // The latest stroke of the work, on the sheet or on the tracing paper, and how many strokes there are: the mark goes once the work changes.
@@ -5121,7 +5110,7 @@ class Component extends DCLogic {
     const s = this.state;
     // The engine picks the next task within the task skill; the demo takes the module's next one.
     if (this.isAdaptive(s)) {
-      const ids = OM.map((t) => t.id), n = ids[(ids.indexOf(s.current) + 1) % ids.length], nk = this.tkey(n);
+      const ids = this.pageTasks(s.captured).map((t) => t.id), n = ids[(ids.indexOf(s.current) + 1) % ids.length], nk = this.tkey(n);
       return this.setState({ current: n, verdict: null, cardOpen: true, clipPos: null, tSel: false, status: { ...s.status, [nk]: undefined }, ptries: { ...s.ptries, [nk]: 0 }, chosen: { ...s.chosen, [nk]: undefined } });
     }
     const sel = s.selected.slice().sort((a, b) => a - b);
@@ -5134,8 +5123,19 @@ class Component extends DCLogic {
   };
 
   // ---- What a lesson draws: the row, the step, the segments and the pop-overs, on both devices (RUN.md, T155).
+  // "Report a problem" with the tutor's words, on every screen where they stand: a lesson, a task on the sheet.
+  repVals(s) {
+    const dot = (on) => ({ ring: on ? 'none' : 'inset 0 0 0 1.5px #C7C7CC', dot: on ? '#0071E3' : '#FFFFFF' }), none = s.reportKind == null;
+    return {
+      open: s.report != null, words: s.report != null ? (s.chat.find((m) => m.id === s.report) || {}).text || '' : '',
+      cancel: () => this.setState({ report: null, reportKind: null, reportErr: false }), send: this.reportSend,
+      kinds: REPORT_KINDS.map((t, i) => ({ t, on: s.reportKind === i, ...dot(s.reportKind === i), pick: () => this.setState({ reportKind: i, reportErr: false }) })),
+      err: s.reportErr && none, sendOff: none, sendBtn: { bg: none ? 'rgba(118,118,128,0.16)' : '#0071E3', fg: none ? '#6E6E73' : '#FFFFFF' },
+    };
+  }
+
   lesVals(s, L, g, inLes, isTask, PH) {
-    const off = { sheetParts: [], wbParts: false, any: false, on: false, end: false, sq: false, lined: false, wb: false, isExpl: false, stmtShow: false, modeShow: false, stepShow: false, reportOpen: false, rowX: 597, above: 86, parts: [], marks: [], lines: [], seg: { title: '', paras: [], list: [], pic: {} }, sPic: {}, step: { t: '', d: '' }, wbBox: {}, sdBtn: {}, qsw: {}, mSteps: {}, mOwn: {}, sendBtn: {} };
+    const off = { sheetParts: [], wbParts: false, any: false, on: false, end: false, sq: false, lined: false, wb: false, isExpl: false, stmtShow: false, modeShow: false, stepShow: false, rowX: 597, above: 86, parts: [], marks: [], lines: [], seg: { title: '', paras: [], list: [], pic: {} }, sPic: {}, step: { t: '', d: '' }, wbBox: {}, sdBtn: {}, qsw: {}, mSteps: {}, mOwn: {}, sendBtn: {} };
     if (!L) return off;
     const k = this.lesKey(s), tstat = s.tstat[k], over = isTask && this.ended(), choice = isTask && !!g.options;
     const steps = this.stepsOf(s), st = steps[s.stepI] || steps[0], last = s.stepI >= steps.length - 1, pip = this.isPip(s);
@@ -5197,7 +5197,6 @@ class Component extends DCLogic {
     const canShow = isTask && !over && !g.rubric && !!g.solution && !pip;
     const doneOff = !tries;
     const mod = MODS.find((m) => m.name === s.lesson) || MODS[0];
-    const rw = s.report != null ? (s.chat.find((m) => m.id === s.report) || {}).text || '' : '';
     return {
       any: true, on: inLes, end: !!L && s.lesEnd, rowX, above, popL: rowX - 200, popL2: rowX - 170, modName: s.lesson, modGlyph: mod.glyph, modColor: mod.color,
       segsAria: L.title + ', ' + KINDS[g.k] + ' ' + (s.seg + 1) + ' of ' + L.segs.length + '. The segments of the lesson',
@@ -5239,10 +5238,6 @@ class Component extends DCLogic {
       sdBtn: { bg: stepOk ? '#0071E3' : 'rgba(118,118,128,0.16)', fg: stepOk ? '#FFFFFF' : '#6E6E73', bg2: stepOk ? 'rgba(0,113,227,0.10)' : 'rgba(118,118,128,0.12)', fg2: stepOk ? '#0071E3' : '#6E6E73' },
       pillShow: stepShow && !s.chatOpen && !s.verdict && !s.choiceOpen && !s.solAsk,
       quotaOut: s.quotaOut, toggleQuota: () => this.setState({ quotaOut: !this.state.quotaOut }), qsw: { bg: s.quotaOut ? '#34C759' : 'rgba(120,120,128,0.24)', x: s.quotaOut ? 20 : 2 },
-      reportOpen: s.report != null && inLes, reportWords: rw, reportCancel: () => this.setState({ report: null, reportKind: null, reportErr: false }), reportSend: this.reportSend,
-      kinds: REPORT_KINDS.map((t, i) => ({ t, on: s.reportKind === i, ...dot(s.reportKind === i), pick: () => this.setState({ reportKind: i, reportErr: false }) })),
-      reportErr: s.reportErr && s.reportKind == null,
-      sendOff: s.reportKind == null, sendBtn: { bg: s.reportKind == null ? 'rgba(118,118,128,0.16)' : '#0071E3', fg: s.reportKind == null ? '#6E6E73' : '#FFFFFF' },
       nextLesson: () => { const i = MODS.findIndex((m) => m.name === this.state.lesson); this.openLesson(MODS[(i + 1) % MODS.length].name); },
       // Solve: the module's tasks, from its first task, as Solve of its tile on Home.
       solveTasks: () => { const name = this.state.lesson, L = LESSONS[name], i = L ? L.segs.findIndex((g) => g.k === 'task') : -1; this.openLesson(name); if (i >= 0) this.goSeg(i); },
@@ -5271,7 +5266,7 @@ class Component extends DCLogic {
 
   // The skill pill of a task of the olympiad module on the sheet: the task skill, or the tutor's choice, and the choice of Home's tile.
   skillVals(s, PH, isSolve) {
-    const on = isSolve && this.isAdaptive(s), own = (s.taskSkill || {})[OLY] || '', open = on && !!s.skillOpen;
+    const on = isSolve && this.isAdaptive(s), mod = this.sheetMod(s), own = (s.taskSkill || {})[mod] || '', open = on && !!s.skillOpen;
     const POP = 'border-radius: 20px; padding: 18px; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 16px 48px rgba(17,24,39,0.16)';
     return { on, open, openStr: String(open), name: own || 'The tutor picks', maxW: PH ? 200 : 280,
       aria: own ? 'Tasks on ' + own + ': choose which tasks to solve' : 'The tutor picks the skill: choose which tasks to solve',
@@ -5280,7 +5275,7 @@ class Component extends DCLogic {
       pos: PH ? 'fixed' : 'absolute',
       P: PH ? 'left: 0; right: 0; bottom: 0; border-radius: 28px 28px 0 0; padding: 56px 16px 28px; box-shadow: 0 -10px 40px rgba(0,0,0,0.16)'
         : 'left: ' + (this.dims().W - 16 - 400) + 'px; top: 70px; width: 400px; transform-origin: top right; ' + POP,
-      m: on ? this.modVals(s, MODS[0]) : {} };
+      m: on ? this.modVals(s, MODS.find((m) => m.name === mod)) : {} };
   }
 
   homeVals(s, PH, pip, later) {
@@ -5316,9 +5311,6 @@ class Component extends DCLogic {
       'Olympiad maths 1–6': { line: 'Mathematics · Grades 1–6 · Adaptive', desc: 'Olympiad problems for grades 1–6: patterns, logic, shapes and reasoning, each task at a band of its own.',
         skills: 45, chips: ['Number patterns', 'Logic puzzles', 'Perimeter'], builds: 'Builds on division with remainder and fractions of a whole',
         facts: [['Version', '0.1.0'], ['Authors', 'The NovaTrail authors'], ['For', 'Under 13 · grades 1–6'], ['Explanation language', 'English'], ['License', 'Apache-2.0']] },
-      'School maths · grade 3': { line: 'Mathematics · Grade 3 · Adaptive', desc: 'Numbers to 1000, the four operations, measures and first fractions, with lessons and worked examples.',
-        skills: 36, chips: ['Numbers to 1000', 'Multiplying by 6–9', 'Hours and minutes'],
-        facts: [['Version', '0.2.1'], ['Authors', 'The NovaTrail authors'], ['For', 'Under 13 · grade 3'], ['Explanation language', 'English'], ['License', 'Apache-2.0']] },
       'Short essays': { line: 'Writing · 13 and up · Feedback by criteria', desc: 'Short essays in English: a rubric gives feedback on each by its criteria — the structure, the ideas and the words.',
         skills: 18, chips: ['Topic sentence', 'Order of ideas', 'Linking words'], rubric: 'Feedback by criteria on each of its 18 skills',
         facts: [['Version', '0.1.0'], ['Authors', 'The NovaTrail authors'], ['For', '13–17 · grown-ups'], ['Explanation language', 'English'], ['License', 'Apache-2.0']] }
@@ -5558,11 +5550,9 @@ class Component extends DCLogic {
         sub: who.owner ? 'Your profile · grown-up' : 'Learner',
         groups: [
           g('', [nav('Name', form.name || who.name)]),
-          g('Learning', [nav('Each task begins', form.mode === 'steps' ? 'Step by step' : 'On my own', set('mode', form.mode === 'steps' ? 'own' : 'steps'))],
-            'The learner can switch the mode on the task screen.'),
           g('Hints', [check('Questions only', 'The tutor asks about a step of the work', form.hints === 'questions', set('hints', 'questions')),
             check('Show where', 'After “Not yet” the tutor also underlines where the mistake is — and corrects nothing', form.hints === 'where', set('hints', 'where'))]),
-        ].concat(child ? [g('Showing the solution', [sw('Ask a grown-up first', form.ask, set('ask', !form.ask))], 'On: “Show the solution” asks for the PIN.')] : [], [
+        ].concat([
           g('Voice', [sw('Read the tutor’s words aloud', form.voice, set('voice', !form.voice))].concat(form.voice
             ? [seg('Speed', [['Normal', form.speed === 'normal', set('speed', 'normal')], ['Slow', form.speed === 'slow', set('speed', 'slow')]])] : []),
           'A voice of this ' + dev + ' reads the words: choose it in This device. With a screen reader, turn this off.'),
@@ -5677,7 +5667,7 @@ class Component extends DCLogic {
       text: findingPage ? 'Finding the tasks on the page…' : nFound + ' tasks found' + (frs.length ? ' · ' + frs.length + ' framed by you' : '') };
     if (isPick) { title = 'Your page'; subtitle = ''; }
     // The counter at the right says which task of the page it is: no line of it under the name.
-    if (isSolve) { title = this.isBoard(s) ? (this.isAdaptive(s) ? OLY : BOARD_MOD.name) + ' · ' + this.tname(t) : this.tname(t); subtitle = ''; }
+    if (isSolve) { title = this.isBoard(s) ? (this.isAdaptive(s) ? this.sheetMod(s) : BOARD_MOD.name) + ' · ' + this.tname(t) : this.tname(t); subtitle = ''; }
 
     const doneN = sel.filter((id) => this.over(id)).length;
     const bands = isPick ? this.pickBands(s) : [];
@@ -5791,10 +5781,10 @@ class Component extends DCLogic {
 
     const lay = (on) => ({ on, bg: on ? 'rgba(0,113,227,0.06)' : '#FFFFFF', sh: on ? 'inset 0 0 0 2px #0071E3' : 'inset 0 0 0 1px rgba(0,0,0,0.10)' });
 
-    const les = this.lesVals(s, L, g, inLes, isTask, PH);
+    const les = this.lesVals(s, L, g, inLes, isTask, PH), rep = this.repVals(s);
     return {
       dbg: this.dbgVals(s, PH, isPick, isSolve),
-      les, ttlPlain: !inLes, backLabel: inLes ? 'Leave the lesson' : 'Back', writingShow: s.typing && (inLes || !!s.drawing),
+      les, rep, ttlPlain: !inLes, backLabel: inLes ? 'Leave the lesson' : 'Back', writingShow: s.typing && (inLes || !!s.drawing),
       vX: isSolve ? '50%' : les.rowX + 'px', vCls: isSolve ? 'ph-vsolve' : '', vB: isSolve ? 86 : les.above, vNext: !!v && v.kind === 'ok' && isSolve,
       vCont: !!v && isTask && (v.kind === 'ok' || v.kind === 'shown'), vFb: !!v && v.kind === 'fb', vShown: !!v && v.kind === 'shown', vNoKey: !!v && v.kind === 'nokey',
       isNumberline: s.surface === 'numberline', isGeo: s.surface === 'geo', isExt,
@@ -5811,7 +5801,8 @@ class Component extends DCLogic {
       wavy: markOn && pm.layer === 'main' ? mark : [], clipWavy: markOn && pm.layer === 'clip' ? mark : [],
       clipVerdicts: vmOn ? vm.marks.map(({ r, ok }, i) => ({ x: Math.round((r.x + r.w - 44 - t.x) * cf), y: Math.round((r.y + 22 - t.y) * cf),
         d: ok ? 'M7 12.5l3.5 3.5L17 8.5' : 'M8 8l8 8M16 8l-8 8', color: ok ? '#15803D' : '#B45309', label: 'Task ' + (i + 1) + ': ' + (ok ? 'correct' : 'not yet') })) : [],
-      pbar: isSolve, pover: pOver, pHint: !pOver, pchk: pOver ? { bg: 'transparent', fg: '#1D1D1F' } : { bg: '#0071E3', fg: '#FFFFFF' },
+      pbar: isSolve, pover: pOver, pHint: !pOver, essayDone: isSolve ? this.sheetDone : les.essayDone,
+      pDone: { on: isSolve && this.isEssay(s) && !pOver, off: String(!s.ptries[this.tkey(t.id)]), fg: s.ptries[this.tkey(t.id)] ? '#0071E3' : '#6E6E73' }, pchk: pOver ? { bg: 'transparent', fg: '#1D1D1F' } : { bg: '#0071E3', fg: '#FFFFFF' },
       viewTf: 'translate(' + (-s.view.x * s.view.z) + 'px, ' + (-s.view.y * s.view.z) + 'px) scale(' + s.view.z + ')',
       viewTr: s.panning ? 'none' : 'transform 0.25s cubic-bezier(.2,.8,.2,1)', wheel: this.wheel,
       vw: { inOff: s.view.z >= 2, inOp: s.view.z >= 2 ? 0.35 : 1, outOff: s.view.z <= 0.5, outOp: s.view.z <= 0.5 ? 0.35 : 1 },
@@ -6013,7 +6004,7 @@ class Component extends DCLogic {
         pickAria: own ? 'Tasks on ' + own + ': choose which tasks to solve' : 'Tasks, the tutor picks the skill: choose which tasks to solve',
         pickOpen: () => this.setState({ tasksPick: pickOn ? null : m.name, helpOpen: false, switchOpen: false, legendOpen: false, pagesOpen: false, bellOpen: false, quotaOpen: false }),
         reset: () => this.setState({ tasksPick: null, skillOpen: false, taskSkill: { ...(this.state.taskSkill || {}), [m.name]: '' } }),
-        solve: m.sheet ? this.openBoard : m.name === OLY ? this.openModule : () => (this.openLesson(m.name), firstTask >= 0 && this.goSeg(firstTask)), solveAria: 'Solve the tasks of ' + m.name,
+        solve: m.sheet ? this.openBoard : m.name === OLY ? this.openModule : m.name === ESS ? this.openEssays : () => (this.openLesson(m.name), firstTask >= 0 && this.goSeg(firstTask)), solveAria: 'Solve the tasks of ' + m.name,
         rec: rec.map(chip), groups: tiers.map((name, t) => ({ name, chips: skills.filter((k) => k.t === t).map(chip) })).filter((g) => g.chips.length) };
       const look = { name: m.name, meta: m.meta, glyph: m.glyph, color: m.color, letter: m.name[0], tone: m.tone };
       if (m.mark) return { ...go, ...look, kind: 'rubric', kindName: 'Feedback by criteria', adaptive: false, done: m.mark + ' skills, each with a rubric',

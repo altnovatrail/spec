@@ -9,8 +9,6 @@
 // names, and the test holds the two to each other.
 
 export const OLYMPIAD = "Olympiad maths 1–6";
-export const WORKBOOK = "School maths · grade 3";
-export const ESSAYS = "Short essays";
 
 // What a step gets: the component of Main.dc.html, its values now, synthetic work on the sheet, and the app's
 // clock for a step that must let a timer end — a Check — before the next one.
@@ -28,15 +26,6 @@ export function helpers(c, app) {
       c.setState({ strokes: { ...c.state.strokes, [key]: list.concat([{ d, tool: "pen", x: 300, y: 420, ts: 0, bb: [300, 400, 390, 440], closed: false }]) } });
     },
   };
-}
-
-// Ticks every given and the unknown of the task open now, and goes past its steps up to the one
-// whose exit is the work on the sheet.
-function toWork(t) {
-  for (const g of t.les().givens) t.les().givens.find((x) => x.t === g.t).tick();
-  for (const u of t.les().unknown) u.tick();
-  t.les().stepDone();
-  t.les().stepDone();
 }
 
 // Two lines of a solution on the sheet, written by the demo's hand: synthetic, no learner's work.
@@ -123,7 +112,7 @@ export const STATES = [
   { name: "subjects-skills", title: "Subjects, every skill of a module by its tier", from: "subjects", shows: "TIER 4 · OLYMPIAD", run: (t) => t.v().hs.catOn[0].skills() },
   // The check board connected, and its tasks on the sheet of a task from paper: a proposal to the author, the statement the module's text.
   { name: "board-home", title: "Home with the check board connected: its card", from: "subjects", shows: "0 of 3 mastered", run: (t) => (t.v().hs.catOff[0].connect(), t.v().hs.nav[0].go()) },
-  { name: "board", title: "A task of the check board on the sheet of a task from paper", from: "board-home", shows: "Task of the module", run: (t) => t.v().mods[3].open() },
+  { name: "board", title: "A task of the check board on the sheet of a task from paper", from: "board-home", shows: "Task of the module", run: (t) => t.v().mods[2].open() },
   { name: "board-tasks", title: "The check board's tasks, from the counter", from: "board", shows: "Houses in a row", run: (t) => t.v().toggleTasks() },
   { name: "board-long", title: "A task of the check board whose statement is three lines", from: "board", shows: "2 albums and 5 notebooks", run: (t) => t.c.pickTask(2) },
   { name: "board-scale", title: "The statement chosen: its bar of scale, with no Recognise", from: "board-long", shows: "90%", run: (t) => t.c.setState({ tSel: true, tScale: 0.9 }) },
@@ -137,20 +126,47 @@ export const STATES = [
   { name: "module-task-hint", title: "Hint on a task of the olympiad module", from: "module-task", shows: "How many new ones", run: (t) => t.c.askHint() },
   { name: "module-task-not-yet", title: "Not yet on a task of the olympiad module", from: "module-task", shows: "Not yet", run: (t) => (t.ink(), t.v().check()) },
   { name: "module-task-correct", title: "Correct on a task of the olympiad module, and Next task", from: "module-task-not-yet", shows: "Correct", run: (t) => t.v().check() },
+  {
+    name: "module-task-reading",
+    title: "A task of the olympiad module, the work being read",
+    from: "module-task",
+    shows: "Reading your work",
+    settle: false,
+    run: (t) => (t.ink(), t.v().check()),
+  },
+  {
+    name: "module-task-reading-closer",
+    title: "A task of the olympiad module, the work gone on to the next model: Looking more closely",
+    from: "module-task",
+    shows: "Looking more closely",
+    settle: false,
+    run: (t) => (t.ink(), t.v().check(), t.c.setState({ verdict: t.c.reading(2) })),
+  },
+  { name: "module-task-rung", title: "A task of the olympiad module, Not yet, the hint in the panel", from: "module-task-not-yet", shows: "Report a problem", run: (t) => t.c.openChat() },
+  { name: "module-task-alt", title: "A task of the olympiad module, Explain differently", from: "module-task-rung", shows: "In other words", run: (t) => t.v().acts.find((a) => a.label === "Explain differently").go() },
+  { name: "module-task-report", title: "A task of the olympiad module, Report a problem", from: "module-task-rung", shows: "Send", run: (t) => t.v().msgs.find((m) => m.report).doReport() },
+  { name: "module-task-full", title: "A task of the olympiad module, the tutor's sheet over the whole screen", from: "module-task-rung", shows: "Report a problem", run: (t) => t.v().toggleTutorFull() },
+  { name: "module-task-quota", title: "A task of the olympiad module, the tutor's time used up: Check reads no work", from: "module-task", shows: "the platform’s AI checks no work", run: (t) => (t.c.setState({ quotaOut: true }), t.ink(), t.v().check()) },
   { name: "module-choice", title: "A task with a choice: its options on the tracing paper", from: "module-task-correct", shows: "September", run: (t) => t.v().next() },
   { name: "module-choice-empty", title: "Check with no option chosen", from: "module-choice", shows: "Choose an answer first", run: (t) => t.v().check() },
   { name: "module-choice-wrong", title: "A wrong option: Not yet", from: "module-choice", shows: "You chose December", run: (t) => (t.v().tr.opts[0].pick(), t.v().check()) },
   { name: "module-choice-correct", title: "The right option: Correct", from: "module-choice-wrong", shows: "You chose January", run: (t) => (t.v().tr.opts[1].pick(), t.v().check()) },
   { name: "module-long", title: "A task whose statement is three lines, with its picture", from: "module-choice-correct", shows: "How many dots are there in row 10", run: (t) => t.v().next() },
+  // A short essay on the same sheet, lined, from Solve on its card: the topic on the tracing paper, feedback by the rubric, Done. A proposal to the author.
+  { name: "essay-sheet", title: "A short essay on the sheet of a task from paper", from: "home", shows: "umbrella that can talk", run: (t) => t.v().mods[1].solve() },
+  { name: "essay-sheet-feedback", title: "An essay on the sheet: Check, the feedback by the rubric", from: "essay-sheet", shows: "The feedback is in the tutor", run: (t) => (t.ink(), t.v().check()) },
+  { name: "essay-sheet-panel", title: "An essay on the sheet: the feedback in the tutor's panel", from: "essay-sheet-feedback", shows: "cleared its throat", run: (t) => t.c.openChat() },
+  { name: "essay-sheet-done", title: "An essay on the sheet: Done, the marks by the criteria", from: "essay-sheet-feedback", shows: "Not assessed", run: (t) => t.v().essayDone() },
+  { name: "essay-sheet-next", title: "An essay on the sheet: the next essay", from: "essay-sheet-done", shows: "a day of your life", run: (t) => (t.c.closeChat(), t.v().next()) },
   { name: "solve-kept", title: "A page from the solving history, its work kept", from: "home-pages", shows: "1 / ", run: (t) => t.v().pages[0].open() },
   { name: "legal-access", title: "The page Accessibility", from: "home-help", shows: "WCAG 2.2", run: (t) => t.v().openAccess() },
   { name: "map", title: "The skill map of a module", from: "subjects", shows: "Enumeration", run: (t) => t.v().hs.catOn[0].map() },
   { name: "map-skill", title: "The skill map, a skill chosen: its chain lit", from: "map", shows: "BUILDS ON", run: (t) => t.v().hs.map.nodes.find((n) => n.name === "Enumeration").pick() },
   { name: "map-skill-locked", title: "The skill map, a locked skill chosen: what it waits for", from: "map", shows: "Opens once", run: (t) => t.v().hs.map.nodes.find((n) => n.name === "Weighing and pouring").pick() },
   { name: "map-modules", title: "The skill map, the module chosen", from: "map", shows: "Connected modules", run: (t) => t.v().hs.toggleMods() },
-  { name: "map-essays", title: "The skill map of a module with a rubric", from: "subjects", shows: "Feedback by criteria", run: (t) => t.v().hs.catOn[2].map() },
+  { name: "map-essays", title: "The skill map of a module with a rubric", from: "subjects", shows: "Feedback by criteria", run: (t) => t.v().hs.catOn[1].map() },
 
-  // A lesson of olympiad maths: the explanation, the worked example, a task on the sheet and a choice.
+  // A lesson of olympiad maths: the explanation and the worked example. Lessons are shut on Home while they are remade.
   { name: "lesson", title: "A lesson, the explanation", from: "home", shows: "Patterns that grow", run: lesson(OLYMPIAD) },
   { name: "lesson-segments", title: "A lesson, its segments", from: "lesson", shows: "Not open yet", run: (t) => t.les().toggleSegs() },
   { name: "example", title: "A worked example", from: "lesson", shows: "Squares of matches", run: cont },
@@ -163,79 +179,13 @@ export const STATES = [
       for (let i = 0; i < 4; i++) t.les().demoNext();
     },
   },
-  { name: "task", title: "A task, step by step, the tutor's panel open", from: "example", shows: "Dots in rows", run: cont },
-  { name: "task-steps", title: "A task, the list of its steps", from: "task", shows: "Check the answer", run: (t) => t.les().toggleSteps() },
-  { name: "task-mode", title: "A task, the solving mode", from: "task", shows: "On my own", run: (t) => t.les().toggleMode() },
-  { name: "task-pill", title: "A task, the step's pill, the panel closed", from: "task", shows: "Understand the task", run: (t) => t.c.closeChat() },
-  { name: "task-hint", title: "A task, a hint before a wrong answer", from: "task", shows: "What we know", run: (t) => t.c.askHint() },
-  { name: "task-empty", title: "A task, Check without work", from: "task-pill", shows: "Write an answer on the sheet", run: (t) => t.les().check() },
-  {
-    name: "task-reading",
-    title: "A task, the work being read",
-    from: "task-pill",
-    shows: "Reading your work",
-    settle: false,
-    run: (t) => {
-      toWork(t);
-      t.ink();
-      t.les().check();
-    },
-  },
-  {
-    name: "task-reading-closer",
-    title: "A task, the work gone on to the next model: Looking more closely",
-    from: "task-pill",
-    shows: "Looking more closely",
-    settle: false,
-    run: (t) => {
-      toWork(t);
-      t.ink();
-      t.les().check();
-      t.c.setState({ verdict: t.c.reading(2) });
-    },
-  },
-  { name: "task-not-yet", title: "A task, Not yet, the card", from: "task-reading", shows: "Not yet", run: (t) => t.c.closeChat() },
-  { name: "task-rung", title: "A task, the rung in the panel", from: "task-not-yet", shows: "Report a problem", run: (t) => t.c.openChat() },
-  { name: "task-alt", title: "A task, Explain differently", from: "task-rung", shows: "In other words", run: (t) => t.v().acts.find((a) => a.label === "Explain differently").go() },
-  { name: "task-report", title: "A task, Report a problem", from: "task-rung", shows: "Send", run: (t) => t.v().msgs.find((m) => m.report).doReport() },
-  { name: "task-correct", title: "A task, Correct", from: "task-not-yet", shows: "Correct", run: (t) => t.les().check() },
-  { name: "task-full", title: "A task, the tutor's sheet over the whole screen", from: "task-rung", shows: "Report a problem", run: (t) => t.v().toggleTutorFull() },
-  { name: "choice", title: "A task with a choice, its options", from: "task-correct", shows: "Choose an answer", run: (t) => (cont(t), t.les().toggleChoice()) },
-  { name: "choice-wrong", title: "A task with a choice, Not yet", from: "choice", shows: "Not yet", run: (t) => (t.les().options[0].pick(), t.les().check()) },
-  { name: "solution-ask", title: "Show the solution, asked first", from: "choice-wrong", shows: "Once the solution is shown", run: (t) => t.les().askSol() },
-  {
-    name: "quota",
-    title: "A task, the tutor's time used up",
-    from: "choice",
-    shows: "Today’s tutor time is used up",
-    run: (t) => {
-      t.les().toggleQuota();
-      t.les().options[0].pick();
-      t.les().check();
-      t.c.openChat();
-    },
-  },
   {
     name: "lesson-end",
     title: "Lesson complete",
-    from: "choice-wrong",
+    from: "example-demo",
     shows: "Lesson complete",
-    run: (t) => {
-      t.les().options[2].pick();
-      t.les().check();
-      cont(t);
-    },
+    run: (t) => cont(t),
   },
-
-  // A lesson of the workbook of grade 3: a page of six lines.
-  { name: "workbook", title: "A task on a workbook page", from: "home", shows: "Division with a remainder", run: (t) => (lesson(WORKBOOK)(t), cont(t), cont(t)) },
-  { name: "workbook-not-yet", title: "A workbook page, two lines Not yet", from: "workbook", shows: "2 items of 6", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
-  { name: "workbook-shown", title: "A workbook page, the solution shown", from: "workbook-not-yet", shows: "Continue", run: (t) => (t.les().askSol(), t.les().showSol()) },
-
-  // A lesson of short essays: the best first sentence, and an essay with feedback by a rubric.
-  { name: "essay", title: "An essay, written to a rubric", from: "home", shows: "an umbrella that can talk", run: (t) => (lesson(ESSAYS)(t), cont(t), t.les().toggleChoice(), t.les().options[1].pick(), t.les().check(), cont(t)) },
-  { name: "essay-feedback", title: "An essay, its feedback", from: "essay", shows: "Feedback", run: (t) => (t.c.closeChat(), t.ink(), t.les().check()) },
-  { name: "essay-done", title: "An essay, Done: the marks by the criteria", from: "essay-feedback", shows: "Not assessed", run: (t) => t.les().essayDone() },
 
   // Take from my paper, the main feature of the app, open to every profile: the camera, the tasks the AI
   // found on the page and one framed by hand, each picked task on a clean sheet under its crop, Check by the key.
@@ -475,8 +425,8 @@ export const STATES = [
   { name: "later-switch", title: "Later: a child's profile menu, Settings behind the PIN", slice: "later", from: "later-home", shows: "Switch learner", run: (t) => t.v().hs.toggleAccount() },
   { name: "later-help", title: "Later: a child's Help in the profile's menu, outside the PIN", slice: "later", from: "later-switch", shows: "call a helpline", run: (t) => t.v().hs.openHelp() },
   { name: "later-grownups", title: "Later: Settings, the PIN inside the profile's menu", slice: "later", from: "later-switch", shows: "Enter the PIN", run: (t) => t.v().hs.openSettings() },
-  { name: "later-settings", title: "Later: Settings past the PIN, a child's page", slice: "later", from: "later-grownups", shows: "Ask a grown-up first", run: (t) => { for (const k of "1234") t.v().hs.pinKeys.find((x) => x.label === k).go(); t.v().st.profiles.find((p) => p.name === t.v().me.name).open(); } },
-  { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (lesson(OLYMPIAD)(t), cont(t), cont(t)) },
+  { name: "later-settings", title: "Later: Settings past the PIN, a child's page", slice: "later", from: "later-grownups", shows: "Learner", run: (t) => { for (const k of "1234") t.v().hs.pinKeys.find((x) => x.label === k).go(); t.v().st.profiles.find((p) => p.name === t.v().me.name).open(); } },
+  { name: "later-pip", title: "Later: Pip, a child's tutor", slice: "later", from: "later-home", shows: "Hi, I’m Pip", run: (t) => (t.v().openCamera(), t.v().capture(), t.settle(), t.v().start(), t.c.openChat()) },
   { name: "later-kinds", title: "Later: the canvas kinds of other authors", slice: "later", from: "later-home", shows: "Number line", run: (t) => (t.v().openCamera(), t.v().capture(), t.settle(), t.v().start(), t.v().toggleMore()) },
 ];
 
