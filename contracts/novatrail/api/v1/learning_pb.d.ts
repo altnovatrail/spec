@@ -255,9 +255,8 @@ export declare type AttemptStart = Message<"novatrail.api.v1.AttemptStart"> & {
    * options" on the tracing paper and whose tap is the answer, `TappedChoice`, judged by the
    * program by the key: of a slot bound `choice`, or of a check `choice` with options, its
    * options; else the key and the slot's trap values not equal to it, the first four by the
-   * module's order, and for a check `number` with fewer, whole numbers next to the key —
-   * the key plus 1, minus 1, plus 2, minus 2 and on, none below 0 when the key is not —, until
-   * there are five. Each as the module writes it, of the instance on a template, in an order the
+   * module's order: the module writes every wrong value shown, and none is added. Each as the
+   * module writes it, of the instance on a template, in an order the
    * attempt's seed shuffles, the same at every read. Empty for a task of more than one answer
    * slot, a slot bound `sheet`, and a check that gives fewer than two.
    *

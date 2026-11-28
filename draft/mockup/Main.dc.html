@@ -3127,7 +3127,7 @@ const SH = [
 // The olympiad module solved on the same sheet: one task at a time, as the engine picks it within the task skill — the tutor's
 // choice or the learner's own —, its statement the module's text on the tracing paper, the module's picture under it, and the
 // options of its answer behind "Answer options", five, as api gives them: a choice's own, else the key and the slot's trap
-// values, filled by numbers next to the key. A tap is the answer, which the program checks by the key. A proposal to the author.
+// values, five as the module writes them. A tap is the answer, which the program checks by the key. A proposal to the author.
 // A picture is in the page's units, 96 wide; the button and an option's chip are 28 high, 6 apart, as wide as their words.
 const OLY = 'Olympiad maths 1–6';
 const optRows = (opts) => { let rows = 1, x = 0; for (const o of opts) { const w = 20 + o.length * 6.9; if (x && x + 6 + w > 256) { rows++; x = w; } else x += (x ? 6 : 0) + w; } return rows; };
