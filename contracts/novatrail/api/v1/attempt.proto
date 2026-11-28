@@ -184,10 +184,12 @@ message SubmitWorkRequest {
   // with every repeat of it.
   string idempotency_key = 3;
   // The handwriting for checking, `sheet` on a task of a module and `paper` on a task from paper:
-  // absent when the task's answer slots are bound `choice` alone.
+  // absent when the task's answer slots are bound `choice` alone, and when the answer is an option
+  // of `AttemptStart.answer_options` tapped.
   Work work = 4;
   // The options tapped on the tracing paper, one for each answer slot bound `choice` that the
-  // learner tapped one of, in the task's order.
+  // learner tapped one of, in the task's order; or the one option of `AttemptStart.answer_options`
+  // tapped, which the program judges by the key as the value of the slot, with no work and no AI.
   repeated TappedChoice tapped_choices = 5;
   // The learner's own key and its provider: with a profile of its owner, when AI reads the work.
   // Its provider names the route of the engine's choice in `next` too.
@@ -334,7 +336,8 @@ message GetRungWordsRequest {
   // the `wrong_answers` of its answer.
   optional int32 wrong_answers = 4;
   // The work of that submission again: absent when the task's answer slots are bound `choice`
-  // alone, and on a task from paper, whose rung comes from the ladder the attempt keeps.
+  // alone, when that submission was an option tapped, and on a task from paper, whose rung comes
+  // from the ladder the attempt keeps.
   Work work = 5;
   // The learner's own key and its provider: with a profile of its owner.
   OwnKey own_key = 6;
@@ -373,7 +376,7 @@ message GetCorrectAnswerWordsRequest {
   // The idempotency key of this request.
   string idempotency_key = 3;
   // The work of the correct submission again: absent when the task's answer slots are bound
-  // `choice` alone.
+  // `choice` alone, and when that submission was an option tapped.
   Work work = 4;
   // The learner's own key and its provider: with a profile of its owner.
   OwnKey own_key = 5;
@@ -839,9 +842,10 @@ message BoxCrop {
 
 // An option the learner tapped.
 message TappedChoice {
-  // The answer slot bound `choice`.
+  // The answer slot: one bound `choice`, or the one slot of a task whose
+  // `AttemptStart.answer_options` the option is of.
   novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
-  // The text of the option tapped, as the open view of the task writes it.
+  // The text of the option tapped, as `AttemptStart.answer_options` writes it.
   string value = 2;
 }
 

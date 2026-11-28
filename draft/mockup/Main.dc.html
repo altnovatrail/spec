@@ -443,11 +443,15 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
 .ph-tbar .ph-tmode.busy{background:#E5F0FF;color:#0058B8;cursor:default}
 .ph-tbar .ph-tmode.back{background:#F2F2F7;color:#1D1D1F}
 .ph-tprose{position:absolute;inset:0;box-sizing:border-box;line-height:1.4;color:#1D1D1F;text-align:left;white-space:normal;pointer-events:none}
-/* A task of a module on the tracing paper: the module's picture under its statement, and a choice's options as buttons, which the program checks by the key. */
+/* A task of a module on the tracing paper: the module's picture under its statement, and the options of its answer behind one button; a tap is the answer, which the program checks by the key. */
 .ph-tpic{position:absolute;overflow:visible;pointer-events:none}
 .ph-topts{position:absolute;left:0;right:0;box-sizing:border-box;display:flex;flex-wrap:wrap;pointer-events:auto}
 .ph-topt{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#FFFFFF;box-shadow:inset 0 0 0 1px rgba(60,60,67,0.30);color:#1D1D1F;font-weight:500;white-space:nowrap;transition:background .15s,box-shadow .15s}
-.ph-topt[aria-checked="true"]{background:#0071E3;box-shadow:none;color:#FFFFFF;font-weight:600}
+.ph-topt{gap:.3em;cursor:pointer}
+.ph-topt.right{background:#248A3D;box-shadow:none;color:#FFFFFF;font-weight:600}
+.ph-topt.wrong{background:#FFF1E6;box-shadow:inset 0 0 0 1.5px #FF9500;color:#A04100;text-decoration:line-through}
+.ph-topt.off{opacity:.4;cursor:default}
+.ph-treveal{position:absolute;box-sizing:border-box;display:inline-flex;align-items:center;border:0;border-radius:999px;background:#E5F0FF;color:#0058B8;font-family:inherit;font-weight:600;white-space:nowrap;cursor:pointer;pointer-events:auto}
 .ph-tstate{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.2;letter-spacing:-.02em;white-space:nowrap;color:#1D1D1F;pointer-events:none}
 .ph-tread{display:inline-flex;align-items:center;white-space:pre}.ph-frac{display:inline-flex;flex-direction:column;align-items:center;margin:0 .1em;line-height:1.1}.ph-num{padding:0 .12em .04em;border-bottom:.06em solid currentColor}.ph-it{font-style:italic}
 .ph-tscan{position:absolute;inset:0;overflow:hidden;background:rgba(0,113,227,.04);pointer-events:none}
@@ -733,7 +737,8 @@ button:focus-visible{outline:2px solid #0071E3;outline-offset:2px}
       <sc-if value="{{tr.pic}}" hint-placeholder-val="{{ false }}"><svg class="ph-tpic" role="img" aria-label="{{tr.picLabel}}" width="{{tr.picW}}" height="{{tr.picH}}" viewBox="{{tr.picVb}}" style="left: {{tr.picX}}px; top: {{tr.picY}}px"><sc-for list="{{tr.picLines}}" as="l" hint-placeholder-count="0"><line x1="{{l.x1}}" y1="{{l.y1}}" x2="{{l.x2}}" y2="{{l.y2}}" style="stroke: #C8A27A; stroke-width: 2.2px; stroke-linecap: round"></line><circle cx="{{l.x2}}" cy="{{l.y2}}" r="1.9" style="fill: #C0392B"></circle></sc-for><sc-for list="{{tr.picDots}}" as="d" hint-placeholder-count="0"><circle cx="{{d.x}}" cy="{{d.y}}" r="2.6" style="fill: #1D1D1F"></circle></sc-for></svg></sc-if>
       <sc-if value="{{tr.busy}}" hint-placeholder-val="{{ false }}"><div class="ph-tscan"><i></i></div></sc-if>
       <div data-w="{{clip.w}}" data-layer="clip" onPointerDown="{{inkDown}}" onPointerMove="{{inkMove}}" onPointerUp="{{inkUp}}" onPointerCancel="{{inkUp}}" style="position: absolute; inset: 0; touch-action: none"></div>
-      <sc-if value="{{tr.choice}}" hint-placeholder-val="{{ false }}"><div class="ph-topts" role="radiogroup" aria-label="Answers" style="top: {{tr.optsY}}px; gap: {{tr.optsGap}}px; padding: 0 {{tr.optsPad}}px; font-size: {{tr.optsFs}}px"><sc-for list="{{tr.opts}}" as="o" hint-placeholder-count="0"><button class="ph-topt" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: {{tr.optsH}}px; padding: 0 {{tr.optsPx}}px">{{o.s}}</button></sc-for></div></sc-if>
+      <sc-if value="{{tr.reveal}}" hint-placeholder-val="{{ false }}"><button class="ph-treveal" aria-expanded="false" onClick="{{tr.open}}" style="left: {{tr.optsPad}}px; top: {{tr.optsY}}px; height: {{tr.optsH}}px; padding: 0 {{tr.optsPx}}px; gap: {{tr.optsGap}}px; font-size: {{tr.optsFs}}px"><svg width="{{tr.iconS}}" height="{{tr.iconS}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"></path><circle cx="4.5" cy="6" r="1"></circle><circle cx="4.5" cy="12" r="1"></circle><circle cx="4.5" cy="18" r="1"></circle></svg>Answer options</button></sc-if>
+      <sc-if value="{{tr.choice}}" hint-placeholder-val="{{ false }}"><div class="ph-topts" role="group" aria-label="Answer options" style="top: {{tr.optsY}}px; gap: {{tr.optsGap}}px; padding: 0 {{tr.optsPad}}px; font-size: {{tr.optsFs}}px"><sc-for list="{{tr.opts}}" as="o" hint-placeholder-count="0"><button class="ph-topt {{o.cls}}" aria-pressed="{{o.on}}" aria-disabled="{{o.shut}}" onClick="{{o.pick}}" style="height: {{tr.optsH}}px; padding: 0 {{tr.optsPx}}px"><sc-if value="{{o.right}}" hint-placeholder-val="{{ false }}"><svg width="{{tr.iconS}}" height="{{tr.iconS}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>{{o.s}}</button></sc-for></div></sc-if>
       <sc-for list="{{clipPaths}}" as="p" hint-placeholder-count="0">
         <svg width="{{clip.w}}" height="{{clip.h}}" style="position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none" aria-hidden="true"><path d="{{p.d}}" transform="{{p.tf}}" style="fill: none; stroke: {{p.color}}; stroke-width: {{p.w}}px; opacity: {{p.op}}; stroke-linecap: round; stroke-linejoin: round"></path></svg>
       </sc-for>
@@ -3120,22 +3125,25 @@ const SH = [
     hint: 'Is the house with the flag counted twice?', alt: 'Draw it: 3 houses left of the flag, 5 right of it. How many in all?' }
 ].map((t) => ({ ...t, x: 0, y: 0, w: 272, ch: Math.round(18 + Math.ceil(t.text.length / 40) * 18.2) }));
 // The olympiad module solved on the same sheet: one task at a time, as the engine picks it within the task skill — the tutor's
-// choice or the learner's own —, its statement the module's text on the tracing paper, the module's picture under it, and a
-// choice's options as buttons on it, which the program checks by the key. A proposal to the author. A picture is in the
-// page's units, 96 wide; an option's chip is 28 high, 6 apart, as wide as its word.
+// choice or the learner's own —, its statement the module's text on the tracing paper, the module's picture under it, and the
+// options of its answer behind "Answer options", five, as api gives them: a choice's own, else the key and the slot's trap
+// values, filled by numbers next to the key. A tap is the answer, which the program checks by the key. A proposal to the author.
+// A picture is in the page's units, 96 wide; the button and an option's chip are 28 high, 6 apart, as wide as their words.
 const OLY = 'Olympiad maths 1–6';
 const optRows = (opts) => { let rows = 1, x = 0; for (const o of opts) { const w = 20 + o.length * 6.9; if (x && x + 6 + w > 256) { rows++; x = w; } else x += (x ? 6 : 0) + w; } return rows; };
 const OM = [
   { id: 1, label: 'Matches in squares', skill: 'Matchstick puzzles', text: 'Each line in the picture is a match. How many matches are in the picture?', pic: 'matches', ans: '10', wrong: '12',
+    options: ['12', '9', '10', '13', '11'], key: '10', traps: { 12: 'Each square shares a side with the next one: is any match counted twice?' },
     hint: 'Count the matches of the first square. How many new ones does each next square need?', alt: 'The squares share their sides. Count the matches standing up, then those lying down.' },
   { id: 2, label: 'Two months on', skill: 'Calendar and age', text: 'It is November now. Which month will it be in 2 months?', ans: 'January', wrong: 'December',
-    options: ['December', 'January', 'February', 'September', 'November'], key: 'January',
+    options: ['December', 'January', 'February', 'September', 'November'], key: 'January', bound: true,
     traps: { December: 'December is only 1 month after November.', February: 'February is too far: count the months from November again.',
       September: 'September was 2 months ago. The question asks about later.', November: 'November is the month now, not the month in 2 months.' },
     hint: 'Name the months that come after November, one at a time.', alt: 'Count on from November: one month, then two. Which month is it?' },
   { id: 3, label: 'Dots in rows', skill: 'Number patterns', text: 'Row 1 has 2 dots, row 2 has 5 dots, and row 3 has 8 dots: each row has 3 more dots than the row before. How many dots are there in row 10?', pic: 'dots', ans: '29', wrong: '32',
+    options: ['30', '32', '26', '29', '28'], key: '29', traps: { 32: 'Row 1 already has its 2 dots: how many steps of 3 come after it?' },
     hint: 'How many steps of 3 are there from row 1 to row 10?', alt: 'Write the rows and their dots in two lines, and look at how they change.' }
-].map((t) => ({ ...t, x: 0, y: 0, w: 272, ch: Math.round(18 + Math.ceil(t.text.length / 40) * 18.2 + (t.pic ? 34 : 0) + (t.options ? optRows(t.options) * 34 + 2 : 0)) }));
+].map((t) => { const ch = 18 + Math.ceil(t.text.length / 40) * 18.2 + (t.pic ? 34 : 0); return { ...t, x: 0, y: 0, w: 272, ch: Math.round(ch + 36), chOpen: Math.round(ch + optRows(t.options) * 34 + 2) }; });
 // Short essays on the same sheet, lined by the module's canvas: one essay at a time, as the engine picks it, its topic the module's
 // text on the tracing paper. Check gives feedback by the rubric in the tutor's panel; Done ends the attempt, and the marks by the
 // criteria come to an adult. A proposal to the author.
@@ -4356,7 +4364,7 @@ class Component extends DCLogic {
   found(st) {
     st = st || this.state;
     const all = this.pageTasks(st.captured), ids = st.asked[st.captured];
-    const moved = (t) => ({ ...t, ...(st.boxes || {})[st.captured + '-' + t.id] });
+    const moved = (t) => ({ ...t, ...(t.chOpen && (st.optsOpen || {})[st.captured + '-' + t.id] ? { ch: t.chOpen } : {}), ...(st.boxes || {})[st.captured + '-' + t.id] });
     return (ids ? all.filter((t) => ids.includes(t.id)) : all.filter((t) => t.found !== false)).map(moved);
   }
   framesOf(st) { st = st || this.state; return st.frames[st.captured] || []; }
@@ -4578,10 +4586,12 @@ class Component extends DCLogic {
     };
   }
 
-  // What a module's task adds to its tracing paper under the statement, in the page's units: its picture, and a choice's options.
+  // What a module's task adds to its tracing paper under the statement, in the page's units: its picture, and the options of its
+  // answer behind their button. An option judged, and every one once one is correct, takes no tap; once one is correct, the others fade.
   tracingMore(t, k, mod) {
     const s = this.state, y0 = 9 + Math.ceil((t.text || '').length / 40) * 18.2 + 2, r = (n) => Math.round(n * k * 10) / 10;
-    const out = { pic: mod && !!t.pic, choice: mod && !!t.options, picLines: [], picDots: [], opts: [] };
+    const key = this.tkey(t.id), open = !!(s.optsOpen || {})[key], has = mod && !!t.options;
+    const out = { pic: mod && !!t.pic, reveal: has && !open, choice: has && open, picLines: [], picDots: [], opts: [] };
     if (out.pic) {
       Object.assign(out, { picX: r(8), picY: r(y0), picW: r(96), picH: r(30), picVb: '0 0 96 30' });
       if (t.pic === 'matches') {
@@ -4594,10 +4604,15 @@ class Component extends DCLogic {
         out.picLabel = 'Three rows of dots: 2, 5 and 8';
       }
     }
-    if (out.choice) {
-      const key = this.tkey(t.id), now = (s.chosen || {})[key];
-      Object.assign(out, { optsY: r(y0 + 2), optsGap: r(6), optsPad: r(8), optsFs: r(12.5), optsH: r(28), optsPx: r(10),
-        opts: t.options.map((o) => ({ s: o, on: String(o === now), pick: () => this.setState({ chosen: { ...(this.state.chosen || {}), [key]: o }, verdict: null }) })) });
+    if (has) {
+      const tried = (s.chosen || {})[key] || [], solved = tried.includes(t.key);
+      Object.assign(out, { optsY: r(y0 + (t.pic ? 34 : 2)), optsGap: r(6), optsPad: r(8), optsFs: r(12.5), optsH: r(28), optsPx: r(10), iconS: r(13),
+        open: () => this.setState({ optsOpen: { ...(this.state.optsOpen || {}), [key]: true } }),
+        opts: t.options.map((o) => {
+          const was = tried.includes(o), shut = was || solved;
+          return { s: o, cls: (was ? (o === t.key ? 'right' : 'wrong') : '') + (solved && o !== t.key ? ' off' : ''), right: was && o === t.key, on: String(was), shut: String(shut),
+            pick: () => { if (!shut) this.tapOption(t, key, o); } };
+        }) });
     }
     return out;
   }
@@ -4994,7 +5009,7 @@ class Component extends DCLogic {
   // and the second "Correct". A circled option is read like handwriting, from the crop with the strokes on it (R68).
   check = () => {
     const s = this.state, t = this.task(), k = this.tkey(t.id), ol = s.captured === 'olympiad' && !t.manual;
-    if (this.isAdaptive(s) && t.options) return this.checkChoice(t, k);
+    if (this.isAdaptive(s) && t.bound) return this.checkChoice(t, k);
     if (this.isEssay(s)) return this.checkEssay(t, k);
     if (!this.hasInk(t)) {
       const v = ol ? { kind: 'info', title: 'Circle an answer first', line: 'Circle one option on the task with the pen, then Check.' } : { kind: 'info', title: 'Write your solution first', line: 'Write it here with the pen, then Check.' };
@@ -5049,13 +5064,15 @@ class Component extends DCLogic {
     }, 1300);
   };
 
-  // A choice of a module's task: the option tapped on the tracing paper, which the program checks by the key — no model reads it.
+  // Check on a task whose slot is a choice: no handwriting is read — its answer is an option tapped.
   checkChoice(t, k) {
-    const got = (this.state.chosen || {})[k];
-    if (!got) {
-      const v = { kind: 'info', title: 'Choose an answer first', line: 'Tap one of the answers on the task, then Check.' };
-      return this.settle(v, '', null, v.line, k);
-    }
+    const v = { kind: 'info', title: 'Choose an answer first', line: 'Open Answer options on the task and tap one.' };
+    return this.settle(v, '', null, v.line, k);
+  }
+
+  // An option tapped on the tracing paper is the answer, at once: the program checks it by the key — no model reads it.
+  tapOption(t, k, got) {
+    this.setState({ chosen: { ...(this.state.chosen || {}), [k]: ((this.state.chosen || {})[k] || []).concat(got) }, ptries: { ...this.state.ptries, [k]: (this.state.ptries[k] || 0) + 1 } });
     const brief = 'You chose ' + got;
     if (got === t.key) {
       this.settle({ kind: 'ok', title: 'Correct', line: brief }, brief, { status: { ...this.state.status, [k]: 'done' } }, null, k);
@@ -5111,7 +5128,7 @@ class Component extends DCLogic {
     // The engine picks the next task within the task skill; the demo takes the module's next one.
     if (this.isAdaptive(s)) {
       const ids = this.pageTasks(s.captured).map((t) => t.id), n = ids[(ids.indexOf(s.current) + 1) % ids.length], nk = this.tkey(n);
-      return this.setState({ current: n, verdict: null, cardOpen: true, clipPos: null, tSel: false, status: { ...s.status, [nk]: undefined }, ptries: { ...s.ptries, [nk]: 0 }, chosen: { ...s.chosen, [nk]: undefined } });
+      return this.setState({ current: n, verdict: null, cardOpen: true, clipPos: null, tSel: false, status: { ...s.status, [nk]: undefined }, ptries: { ...s.ptries, [nk]: 0 }, chosen: { ...s.chosen, [nk]: undefined }, optsOpen: { ...s.optsOpen, [nk]: false } });
     }
     const sel = s.selected.slice().sort((a, b) => a - b);
     const i = sel.indexOf(s.current);
@@ -5841,8 +5858,9 @@ class Component extends DCLogic {
       clip: { w: Math.round(t.w * cf), h: Math.round(t.ch * cf), left: Math.round(this.clipXY().x), top: Math.round(this.clipXY().y),
         cursor: s.clipDrag ? 'grabbing' : 'grab', grip: s.clipDrag ? 'rgba(0,113,227,0.6)' : 'rgba(60,60,67,0.22)',
         rot: 0, lift: s.clipDrag ? 1.015 : 1,
-        // Transparent: the sheet and its strokes show through; the print stays over them. A hairline marks the crop.
-        bg: s.clipDrag ? 'rgba(255,255,255,0.35)' : 'transparent',
+        // A photo's is transparent: the sheet and its strokes show through; the print stays over them. A hairline marks the crop.
+        // A module's is opaque: its statement is the module's text on white, which the sheet's grid would only cross.
+        bg: this.isBoard(s) ? '#FFFFFF' : s.clipDrag ? 'rgba(255,255,255,0.35)' : 'transparent',
         shadow: s.clipDrag ? '0 0 0 1.5px rgba(0,113,227,0.45), 0 18px 44px rgba(0,0,0,0.12)' : '0 0 0 1px rgba(60,60,67,0.14)',
         tf: "translate(" + (-t.x * cf) + "px, " + (-t.y * cf) + "px) scale(" + cf + ")",
         op: s.cardOpen ? 1 : 0, dy: s.cardOpen ? 0 : -16, sc: s.cardOpen ? 1 : 0.97, vis: s.cardOpen ? 'visible' : 'hidden' },

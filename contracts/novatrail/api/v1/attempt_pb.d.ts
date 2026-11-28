@@ -50,7 +50,8 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
 
   /**
    * The handwriting for checking, `sheet` on a task of a module and `paper` on a task from paper:
-   * absent when the task's answer slots are bound `choice` alone.
+   * absent when the task's answer slots are bound `choice` alone, and when the answer is an option
+   * of `AttemptStart.answer_options` tapped.
    *
    * @generated from field: novatrail.api.v1.Work work = 4;
    */
@@ -58,7 +59,8 @@ export declare type SubmitWorkRequest = Message<"novatrail.api.v1.SubmitWorkRequ
 
   /**
    * The options tapped on the tracing paper, one for each answer slot bound `choice` that the
-   * learner tapped one of, in the task's order.
+   * learner tapped one of, in the task's order; or the one option of `AttemptStart.answer_options`
+   * tapped, which the program judges by the key as the value of the slot, with no work and no AI.
    *
    * @generated from field: repeated novatrail.api.v1.TappedChoice tapped_choices = 5;
    */
@@ -455,7 +457,8 @@ export declare type GetRungWordsRequest = Message<"novatrail.api.v1.GetRungWords
 
   /**
    * The work of that submission again: absent when the task's answer slots are bound `choice`
-   * alone, and on a task from paper, whose rung comes from the ladder the attempt keeps.
+   * alone, when that submission was an option tapped, and on a task from paper, whose rung comes
+   * from the ladder the attempt keeps.
    *
    * @generated from field: novatrail.api.v1.Work work = 5;
    */
@@ -572,7 +575,7 @@ export declare type GetCorrectAnswerWordsRequest = Message<"novatrail.api.v1.Get
 
   /**
    * The work of the correct submission again: absent when the task's answer slots are bound
-   * `choice` alone.
+   * `choice` alone, and when that submission was an option tapped.
    *
    * @generated from field: novatrail.api.v1.Work work = 4;
    */
@@ -1825,14 +1828,15 @@ export declare const BoxCropSchema: GenMessage<BoxCrop>;
  */
 export declare type TappedChoice = Message<"novatrail.api.v1.TappedChoice"> & {
   /**
-   * The answer slot bound `choice`.
+   * The answer slot: one bound `choice`, or the one slot of a task whose
+   * `AttemptStart.answer_options` the option is of.
    *
    * @generated from field: novatrail.observation.v1.AnswerSlotPlace answer_slot = 1;
    */
   answerSlot?: AnswerSlotPlace | undefined;
 
   /**
-   * The text of the option tapped, as the open view of the task writes it.
+   * The text of the option tapped, as `AttemptStart.answer_options` writes it.
    *
    * @generated from field: string value = 2;
    */

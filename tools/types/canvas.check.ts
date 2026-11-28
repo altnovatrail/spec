@@ -22,6 +22,8 @@ declare class Sheet extends HTMLElement implements canvas.CanvasElement {
   set grid(grid: canvas.PaperGrid | undefined);
   get chosen(): number | undefined;
   set chosen(option: number | undefined);
+  get optionVerdicts(): readonly (canvas.OptionVerdict | null)[];
+  set optionVerdicts(verdicts: readonly (canvas.OptionVerdict | null)[]);
   get pens(): canvas.PenSettings;
   set pens(settings: canvas.PenSettings | undefined);
   workedExample: open.WorkedExample | undefined;
@@ -267,6 +269,11 @@ sheet.addEventListener("optiontap", (event) => {
   return option;
 });
 sheet.chosen = undefined;
+// What each option came to, as app sets it after each verdict.
+sheet.optionVerdicts = ["not_yet", "correct", null];
+export const judged: readonly (canvas.OptionVerdict | null)[] = sheet.optionVerdicts;
+// @ts-expect-error: a verdict not of OptionVerdict
+sheet.optionVerdicts = ["wrong", null, null];
 // @ts-expect-error: options are their texts, not numbers
 sheet.paper = { statement, source: "module", options: [12, 15] };
 sheet.tool = "hand";

@@ -182,7 +182,7 @@ In detail — in [privacy.md](privacy.md).
 **Module 1 — olympiad maths 1–6** from MathTrail:
 - the learner is a child, the work is handwriting on a sheet. The manifest names adults too in the audience, `adult`: adults learn on the first slice;
 - one task at a time, chosen by the engine in the module's task skill, on the sheet of a task from paper; its verdict the program's by its key, and its attempt evidence;
-- the answer is a number by hand; a choice of an option, tapped on the tracing paper, is for tasks whose answer is not a number or whose question points to options;
+- the answer is a number by hand, or one of five options behind "Answer options" on the tracing paper — the key and the module's trap values, filled by the program —, tapped and checked by the program at once, with no AI;
 - techniques and traps; Pólya's steps stay the module's solving steps, data that the platform does not run;
 - the explanations are in English, as the standalone tasks and the format examples are; the same module in Russian is another module, with its own name;
 - 753 reference tasks of standalone: the first batch at commit [89986bc](https://github.com/mathtrail/mathtrail-standalone/tree/89986bc), the other 726 at [42b4408](https://github.com/mathtrail/mathtrail-standalone/tree/42b4408).
